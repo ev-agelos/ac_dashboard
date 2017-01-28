@@ -1,11 +1,3 @@
-import os
-import configparser
-
-
-APP_DIR = os.path.split(os.path.abspath(__file__))[0]
-GAME_DIR = APP_DIR.split("apps\\python\\Ptyxiakh")[0]
-
-
 def get_max_rpm(car):
     car_rpms = {
 		'abarth500': 6522,
@@ -55,13 +47,8 @@ def get_max_rpm(car):
 		'pagani_zonda_r': 8158,
 		'tatuusfa1': 6542
 	}
-    if car in car_rpms:
-        return car_rpms[car]
-    else:
-        config = configparser.ConfigParser(inline_comment_prefixes=(';'))
-        config.read(GAME_DIR +
-                    "content\\cars\\opel_adam_cup\\data\\engine.ini")
-        return int(config['ENGINE_DATA']['LIMITER'])
+
+    return car_rpms.get(car)
 
 
 def change_car_name(car_temp):
