@@ -28,6 +28,7 @@ APP_DIR = os.path.split(os.path.abspath(__file__))[0]
 GAME_DIR = APP_DIR.split("apps\\python\\ptyxiakh")[0]
 CLIENT = os.path.join(APP_DIR, "Python33", "Client.py")
 PYTHON = os.path.join(APP_DIR, "Python33", "pythonw.exe")
+LOG_FILE = os.path.join(APP_DIR, "ACRanking.txt")
 
 APP_WINDOW = 0
 USER_SETTINGS = []
@@ -287,7 +288,8 @@ def acMain(Ptyxiakh):
     add_labels_2()
     add_labels()
     NICKNAME = ac.getDriverName(0)
-    Car_0.max_rpm = get_max_rpm(ac.getCarName(0))
+    # FIXME: should get the value from sim_info static data, 99999 is bad default
+    Car_0.max_rpm = get_max_rpm(ac.getCarName(0)) or 99999
 
     background = ac.addLabel(APP_WINDOW, "")
     ac.setPosition(background, 0, 0)
@@ -409,21 +411,21 @@ def check_time(pb):
         #Popen([PYTHON,CLIENT,NICKNAME,TRACK,CAR,str(pb),str(Car_0.maxspeed)]+list(map(str,splits))+USER_ASSISTS+USER_SETTINGS)
 
     tempdata = [TRACK, CAR, pb]
-    with open(log, 'w') as tempfile:
+    with open(LOG_FILE, 'w') as tempfile:
         json.dump(tempdata, tempfile)
 
 
 def check_log_file():
     global LOG_FILE_TRACK, LOG_FILE_CAR, LOG_FILE_LAP
     try:
-        with open(log) as fob:
+        with open(LOG_FILE) as fob:
             tempdata = json.load(fob)
             LOG_FILE_TRACK = tempdata[0]
             LOG_FILE_CAR = tempdata[1]
             LOG_FILE_LAP = tempdata[2]
     except IOError:
         tempdata = ['track', 'car', 0]
-        with open(log, 'w') as tempfile:
+        with open(LOG_FILE, 'w') as tempfile:
             json.dump(tempdata, tempfile)
 
 
