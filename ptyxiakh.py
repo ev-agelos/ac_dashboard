@@ -15,10 +15,10 @@ try:
     import json
     import configparser
     from glob import glob
-    from subprocess import *
+    from subprocess import Popen
     from sim_info import info
-    from car_rpms import *
-    from convert_time import *
+    from car_rpms import get_max_rpm, change_track_name
+    from convert_time import int_to_time
 except Exception as err:
     ac.log("PTYXIAKH " + str(err))
 import acsys
@@ -287,7 +287,7 @@ def acMain(Ptyxiakh):
     add_labels_2()
     add_labels()
     NICKNAME = ac.getDriverName(0)
-    Car_0.max_rpm = MaxRPM(ac.getCarName(0))
+    Car_0.max_rpm = get_max_rpm(ac.getCarName(0))
 
     background = ac.addLabel(APP_WINDOW, "")
     ac.setPosition(background, 0, 0)
@@ -598,7 +598,7 @@ def add_labels():
     ECU_LABELS = [LABELS_DICT[41], LABELS_DICT[42], LABELS_DICT[43]]
 #------------------------------------------------------
     appWindowLabels = ([LABELS_DICT[32]] + FUEL_LABELS + ELECTRONIC_LABELS +
-                       G_FORCES+ECU_LABELS)
+                       G_FORCES + ECU_LABELS)
     positions = [(290, 58),  # Dashboard Labels(Gear,RPM/Speed,Pos/Laps,last_sector_time/performance_meter,LastLap)
                  (181, 105), (183, 103),  # progressbar/Fuel,Pre,Est
                  (50, 35), (10, 55), (35, 120), (35, 150), # Tyres/Optimum temps/ABS/TC
