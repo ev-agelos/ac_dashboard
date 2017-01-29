@@ -4,8 +4,8 @@ from electronics import CAR_DATA
 
 
 class Car:
-    tc_levels = None
-    abs_levels = None
+    tc_levels = tuple()
+    abs_levels = tuple()
 
     def __init__(self):
         self.name = ''
@@ -48,8 +48,11 @@ class Car:
     def tc(self, value):
         """Set the raw traction control value and map it to a level."""
         self._tc = value
-        if self.tc_levels is None:
-            self.tc_levels = CAR_DATA.get(self.name, {}).get('tc', tuple())
+        if not self.tc_levels:
+            self.tc_levels = CAR_DATA.get(self.name, {}).get('tc')
+            # no data for the car or has not any tc values
+            if self.tc_levels is None:
+                self.tc_levels = (0, )
         try:
             self.tc_level = self.tc_levels.index(round(value, 2))
         except ValueError:
@@ -65,7 +68,10 @@ class Car:
         """Set the raw abs value and map it to a level."""
         self._abs = value
         if not self.abs_levels:
-            self.abs_levels = CAR_DATA.get(self.name, {}).get('abs', tuple())
+            self.abs_levels = CAR_DATA.get(self.name, {}).get('abs')
+            # unknown car or has not any abs values
+            if self.abs_levels is None:
+                self.abs_levels = (0, )
         try:
             self.abs_level = self.abs_levels.index(round(value, 2))
         except ValueError:
