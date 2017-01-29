@@ -13,12 +13,12 @@ try:
     os.environ['PATH'] += ';.'
 
     import json
-    import configparser
-    from glob import glob
     from subprocess import Popen
     from sim_info import info
     from car import Car
     from tyres import get_compound_temps
+    from settings import (get_user_nationality, get_controller, get_racing_mode,
+                          get_user_assists)
     from car_rpms import get_max_rpm, change_track_name, change_car_name
     from convert_time import int_to_time
 except Exception as err:
@@ -33,7 +33,6 @@ PYTHON = os.path.join(APP_DIR, "Python33", "pythonw.exe")
 LOG_FILE = os.path.join(APP_DIR, "ACRanking.txt")
 
 APP_WINDOW = 0
-USER_SETTINGS = []
 LOG_FILE_LAP = 0
 LOG_FILE_TRACK = ""
 LOG_FILE_CAR = ""
@@ -111,6 +110,7 @@ class Driver:
         self.last_sector_time = 0
         self.current_sector_index = 0
         self.number_of_laps = 0
+        self.settings = {}
 
 
 class DashBoard:
@@ -236,33 +236,6 @@ def check_driver_pos():
     POSITION = ac.getCarRealTimeLeaderboardPosition(0) + 1
 
 
-def get_user_settings():
-    global RACING_MODE, USER_ASSISTS, AMBIENT_TEMP
-    config_folder = glob("C://Users//*//Documents//Assetto Corsa//cfg//")[0]
-    config = configparser.ConfigParser(inline_comment_prefixes=(';', ))
-
-    config.read(config_folder + 'race.ini')
-    nationality = ''
-    if config['CAR_0']['NATIONALITY'] != 'Planet Earth':
-        nationality = config['CAR_0']['NATIONALITY']
-    AMBIENT_TEMP = float(config['TEMPERATURE']['ambient'])
-
-    config.read(config_folder + 'controls.ini')
-    input_controller = config['HEADER']['INPUT_METHOD']
-
-    config.read(config_folder + 'launcher.ini')
-    mode = config['SAVED']['DRIVE']
-    modes = {'specialevents': 'Special Event', 'timeattack': 'Time Attack'}
-    RACING_MODE = modes.get(mode) or mode.capitalize()
-    USER_SETTINGS.extend((nationality, input_controller, RACING_MODE))
-
-    config.read(config_folder + 'assists.ini')
-    assists = config['ASSISTS']
-    USER_ASSISTS = ["Off" if assists[i] == "0" else assists[i]
-                    if i in ("stability_control", "damage", "fuel_rate",
-                             "tyre_wear") else "On"
-                    for i in assists]
-
 
 def acMain(Ptyxiakh):
     """Main function that is invoked by Assetto Corsa."""
@@ -275,11 +248,16 @@ def acMain(Ptyxiakh):
         Driver_0.temp_theoretical['S' + str(i)] = []
 
     check_log_file()
-    get_user_settings()
+    Driver_0.settings.update(nationality=get_user_nationality(),
+                             controller=get_controller(),
+                             racing_mode=get_racing_mode(),
+                             track_temp=get_track_temp())
+    Driver_0.assists.update(**get_user_assists())
     TRACK = change_track_name(ac.getTrackName(0))
     upgrade, CAR = change_car_name(ac.getCarName(0))
     Car_0.name = CAR
-    USER_SETTINGS.append(upgrade)
+    Driver_0.settings.update(car_upgrade=upgrade)
+
     add_labels_2()
     add_labels()
     NICKNAME = ac.getDriverName(0)
@@ -333,8 +311,8 @@ def acUpdate(deltaT):
 
     if round(FL.core_temp, 1) == round(FR.core_temp, 1) == \
             round(RL.core_temp, 1) == round(RR.core_temp, 1) == \
-            AMBIENT_TEMP and (len(str(Car_0.fuel)) == 4 or
-                              TRACK == "Assetto Dorifto track"):
+            Driver_0.settings['track_temp'] and \
+            len(str(Car_0.fuel)) == 4 or TRACK == "Assetto Dorifto track":
         reset_values()
 
 
@@ -395,14 +373,18 @@ def check_time(pb):
             pass
             # Popen([PYTHON, CLIENT, NICKNAME, TRACK, CAR, str(pb),
             #        str(Car_0.max_speed)] + list(map(str,splits)) +
-            #        USER_ASSISTS + USER_SETTINGS)
+            #        USER_ASSISTS + Driver_0.settings['nationality'] +
+            #        Driver_0.settings['controller'] +
+            #        Driver_0.settings['racing_mode']])
     else:
         LOG_FILE_TRACK = TRACK
         LOG_FILE_CAR = CAR
         LOG_FILE_LAP = pb
         # Popen([PYTHON, CLIENT, NICKNAME, TRACK, CAR, str(pb),
         #        str(Car_0.max_speed)] + list(map(str,splits)) + USER_ASSISTS +
-        #        USER_SETTINGS)
+        #        Driver_0.settings['nationality'] +
+        #        Driver_0.settings['controller'] +
+        #        Driver_0.settings['racing_mode'])
 
     with open(LOG_FILE, 'w') as fob:
         json.dump([TRACK, CAR, pb], fob)
@@ -628,11 +610,14 @@ def add_labels():
     POS_LAPS = Switch(163, 70, 80, 30, 25, switch_pos_laps)
     SECTOR = Switch(365, 104, 80, 20, 15, switch_sector)
 
-    background = ac.addLabel(window_info, "") # Prepei na mpei teleytaio gia na fortwnei meta to prasino eikonidio gia na kratietai to diafano...
+    # Prepei na mpei teleytaio gia na fortwnei meta to prasino eikonidio gia na
+    # kratietai to diafano...
+    background = ac.addLabel(window_info, "")
     ac.setPosition(background, 0, 0)
     ac.setSize(background, 161, 205)
-    ac.setBackgroundTexture(background, (APP_DIR + "/Images/Info" +
-                                         USER_SETTINGS[-1] + ".png"))
+    car_upgrade_img_path = os.path.join(
+        APP_DIR, "/Images/Info{}.png".format(Driver_0.settings['car_upgrade']))
+    ac.setBackgroundTexture(background, car_upgrade_img_path)
 
 
 def render_info(deltaT):
