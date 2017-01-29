@@ -18,7 +18,7 @@ try:
     from car import Car
     from tyres import get_compound_temps
     from settings import (get_user_nationality, get_controller, get_racing_mode,
-                          get_user_assists)
+                          get_user_assists, get_track_temp)
     from car_rpms import get_max_rpm, change_track_name, change_car_name
     from convert_time import int_to_time
 except Exception as err:
@@ -37,9 +37,9 @@ LOG_FILE_LAP = 0
 LOG_FILE_TRACK = ""
 LOG_FILE_CAR = ""
 LABELS_DICT = {}
-######################################## AFTER OPTIMIZING ##############################
+
 STATIC_SHARED_MEMORY_IS_READ = False
-#######################################################################################
+
 NUM_CARS = 1  # at least user's car
 
 
@@ -239,7 +239,7 @@ def check_driver_pos():
 
 def acMain(Ptyxiakh):
     """Main function that is invoked by Assetto Corsa."""
-    global APP_WINDOW, NICKNAME, TRACK, CAR
+    global APP_WINDOW, NICKNAME, TRACK
     APP_WINDOW = ac.newApp("")
     ac.setSize(APP_WINDOW, 600, 170)
     ac.drawBorder(APP_WINDOW, 0)
@@ -254,8 +254,7 @@ def acMain(Ptyxiakh):
                              track_temp=get_track_temp())
     Driver_0.assists.update(**get_user_assists())
     TRACK = change_track_name(ac.getTrackName(0))
-    upgrade, CAR = change_car_name(ac.getCarName(0))
-    Car_0.name = CAR
+    upgrade, Car_0.name = change_car_name(ac.getCarName(0))
     Driver_0.settings.update(car_upgrade=upgrade)
 
     add_labels_2()
@@ -368,26 +367,26 @@ def check_time(pb):
     while len(splits) < 3:
         splits.append(0)
 
-    if LOG_FILE_TRACK == TRACK and LOG_FILE_CAR == CAR:
+    if LOG_FILE_TRACK == TRACK and LOG_FILE_CAR == Car_0.name:
         if LOG_FILE_LAP == 0 or LOG_FILE_LAP > pb:
             pass
-            # Popen([PYTHON, CLIENT, NICKNAME, TRACK, CAR, str(pb),
+            # Popen([PYTHON, CLIENT, NICKNAME, TRACK, Car_0.name, str(pb),
             #        str(Car_0.max_speed)] + list(map(str,splits)) +
             #        USER_ASSISTS + Driver_0.settings['nationality'] +
             #        Driver_0.settings['controller'] +
             #        Driver_0.settings['racing_mode']])
     else:
         LOG_FILE_TRACK = TRACK
-        LOG_FILE_CAR = CAR
+        LOG_FILE_CAR = Car_0.name
         LOG_FILE_LAP = pb
-        # Popen([PYTHON, CLIENT, NICKNAME, TRACK, CAR, str(pb),
+        # Popen([PYTHON, CLIENT, NICKNAME, TRACK, Car_0.name, str(pb),
         #        str(Car_0.max_speed)] + list(map(str,splits)) + USER_ASSISTS +
         #        Driver_0.settings['nationality'] +
         #        Driver_0.settings['controller'] +
         #        Driver_0.settings['racing_mode'])
 
     with open(LOG_FILE, 'w') as fob:
-        json.dump([TRACK, CAR, pb], fob)
+        json.dump([TRACK, Car_0.name, pb], fob)
 
 
 def check_log_file():
@@ -439,7 +438,7 @@ def draw_dashboard():
         for i in range(10, 15):
             ac.glQuadTextured(144 + (i * 20), 41, 32, 32, IMAGE_LED_BLUE)
     else:
-        if CAR == "Formula Abarth":
+        if Car_0.name == "Formula Abarth":
             for i in range(0, round(Car_0.rpm * 3 / Car_0.max_rpm)):
                 if i == 0:
                     for num in range(0, 5):
