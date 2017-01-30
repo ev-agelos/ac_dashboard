@@ -14,6 +14,7 @@ try:
 
     import json
     from subprocess import Popen
+    from ui import TyreWindow
     from sim_info import info
     from car import Car
     from tyres import get_compound_temps
@@ -52,13 +53,27 @@ class Tyres:
         self.hot = 0
         self.wear = 0
 
+    def measure_hot_cold(self):
+        if self.core_temp < get_compound_temps(Car_0.name,
+                                               Car_0.tyre_compound)[0]:
+            self.cold = Driver_0.current_laptime - (self.opt + self.hot)
+        elif self.core_temp > get_compound_temps(Car_0.name,
+                                                 Car_0.tyre_compound)[1]:
+            self.hot = Driver_0.current_laptime - (self.opt + self.cold)
+        else:
+            self.opt = Driver_0.current_laptime - (self.hot + self.cold)
+
 
 class TyreWindow:
 
+    # FIXME how static variable opt_label is being used for all 4 tyre windows
+    # and show different temps? this seems that it should have been attribute
+    # per object, not static variable. Or maybe it is a label that shows
+    # something that is the same for all 4 windows?
     opt_label = None
     window = None
 
-    def __init__(self, tyre_name, render_tyre, starting_label_no):
+    def __init__(self, tyre_name, render_function, starting_label_no):
         self.tyre_name = tyre_name
         self.window = ac.newApp(tyre_name)
         self.starting_label_no = starting_label_no
@@ -68,7 +83,21 @@ class TyreWindow:
         for i in range(3):
             LABELS_DICT[self.starting_label_no + i] = ac.addLabel(self.window,
                                                                   "")
-        ac.addRenderCallback(self.window, render_tyre)
+        ac.addRenderCallback(self.window, render_function)
+        ac.setFontSize(self.starting_label_no, 25)
+        ac.setPosition(self.starting_label_no, 35, 30)
+
+    def draw_tyre_colors(self, temp):
+        if temp < get_compound_temps(Car_0.name, Car_0.tyre_compound)[0]:
+            ac.setBackgroundColor(self.window, 0, 0, 1)
+        elif temp > get_compound_temps(Car_0.name, Car_0.tyre_compound)[1]:
+            ac.setBackgroundColor(self.window, 1, 0, 0)
+        else:
+            ac.setBackgroundColor(self.window, 0, 1, 0)
+
+        ac.setBackgroundOpacity(self.window, 0.5)
+        ac.drawBorder(self.window, 0)
+
 
 
 class Switch:
@@ -240,6 +269,7 @@ def check_driver_pos():
 def acMain(Ptyxiakh):
     """Main function that is invoked by Assetto Corsa."""
     global APP_WINDOW, NICKNAME, TRACK
+    global WINDOW_FL, WINDOW_FR, WINDOW_RL, WINDOW_RR
     APP_WINDOW = ac.newApp("")
     ac.setSize(APP_WINDOW, 600, 170)
     ac.drawBorder(APP_WINDOW, 0)
@@ -257,7 +287,11 @@ def acMain(Ptyxiakh):
     upgrade, Car_0.name = change_car_name(ac.getCarName(0))
     Driver_0.settings.update(car_upgrade=upgrade)
 
-    add_labels_2()
+    WINDOW_FL = TyreWindow("F_R", render_tyre_fl, 9)
+    WINDOW_FR = TyreWindow("F_L", render_tyre_fr, 14)
+    WINDOW_RL = TyreWindow("R_R", render_tyre_rl, 19)
+    WINDOW_RR = TyreWindow("R_L", render_tyre_rr, 24)
+
     add_labels()
     NICKNAME = ac.getDriverName(0)
     # FIXME should get the value from sim_info static data, 99999 is bad default
@@ -290,11 +324,11 @@ def acUpdate(deltaT):
 
     if Driver_0.total_laps < Driver_0.temp_total_laps:
         Driver_0.total_laps = Driver_0.temp_total_laps
-        Car_0.measure_fuel_laps()
         search_splits(ac.getLastSplits(0))
         last_lap = sum(ac.getLastSplits(0))
-        for label, tyre in zip(HOT_COLD_TYRE_LABELS, (FL, FR, RL, RR)):
-            ac.setText(label,
+        for window, tyre in zip((WINDOW_FL, WINDOW_FR, WINDOW_RL, WINDOW_RR),
+                                (FL, FR, RL, RR)):
+            ac.setText(window.starting_label_no,
                        "Opt: {}%".format(round((tyre.opt * 100) / last_lap, 1)))
             tyre.opt = 0
             tyre.cold = 0
@@ -404,9 +438,11 @@ def check_log_file():
 
 
 def onFormRender(deltaT):
-    for label, temp in zip(TYRE_LABELS, (FL.core_temp, FR.core_temp,
-                                         RL.core_temp, RR.core_temp)):
-        ac.setText(label, "{}C".format(round(temp)))
+    tyre_windows = (WINDOW_FL, WINDOW_FR, WINDOW_RL, WINDOW_RR)
+    tyres = (FL, FR, RL, RR)
+    for window, tyre in zip(tyre_windows, tyres):
+        ac.setText(window.starting_label_no,
+                   "{}C".format(round(tyre.core_temp)))
 
     ac.glColor4f(1, 1, 1, 1)  # RESET COLORS
     draw_dashboard()
@@ -482,60 +518,23 @@ def search_splits(splits):
 
 
 def render_tyre_fl(deltaT):
-    draw_tyre_colors(FL.core_temp, WINDOW_FL.window)
-    measure_hot_cold(FL.core_temp, FL)
+    WINDOW_FL.draw_tyre_colors(FL.core_temp)
+    FL.measure_hot_cold()
 
 
 def render_tyre_fr(deltaT):
-    draw_tyre_colors(FR.core_temp, WINDOW_FR.window)
-    measure_hot_cold(FR.core_temp, FR)
+    WINDOW_FR.draw_tyre_colors(FR.core_temp)
+    FR.measure_hot_cold()
 
 
 def render_tyre_rl(deltaT):
-    draw_tyre_colors(RL.core_temp, WINDOW_RL.window)
-    measure_hot_cold(RL.core_temp, RL)
+    WINDOW_RL.draw_tyre_colors(RL.core_temp)
+    RL.measure_hot_cold()
 
 
 def render_tyre_rr(deltaT):
-    draw_tyre_colors(RR.core_temp, WINDOW_RR.window)
-    measure_hot_cold(RR.core_temp, RR)
-
-
-def draw_tyre_colors(temp, window):
-    if temp < get_compound_temps(Car_0.name, Car_0.tyre_compound)[0]:
-        ac.setBackgroundColor(window, 0, 0, 1)
-    elif temp > get_compound_temps(Car_0.name, Car_0.tyre_compound)[1]:
-        ac.setBackgroundColor(window, 1, 0, 0)
-    else:
-        ac.setBackgroundColor(window, 0, 1, 0)
-
-    ac.setBackgroundOpacity(window, 0.5)
-    ac.drawBorder(window, 0)
-
-
-def measure_hot_cold(temp, tyre):
-    if temp < get_compound_temps(Car_0.name, Car_0.tyre_compound)[0]:
-        tyre.cold = Driver_0.current_laptime - (tyre.opt + tyre.hot)
-    elif temp > get_compound_temps(Car_0.name, Car_0.tyre_compound)[1]:
-        tyre.hot = Driver_0.current_laptime - (tyre.opt + tyre.cold)
-    else:
-        tyre.opt = Driver_0.current_laptime - (tyre.hot + tyre.cold)
-
-
-def add_labels_2():
-    global WINDOW_FL, WINDOW_FR, WINDOW_RL, WINDOW_RR, TYRE_LABELS
-    global HOT_COLD_TYRE_LABELS
-    WINDOW_FL = TyreWindow("F_R", render_tyre_fl, 9)
-    WINDOW_FR = TyreWindow("F_L", render_tyre_fr, 14)
-    WINDOW_RL = TyreWindow("R_R", render_tyre_rl, 19)
-    WINDOW_RR = TyreWindow("R_L", render_tyre_rr, 24)
-    HOT_COLD_TYRE_LABELS = [WINDOW_FL.opt_label, WINDOW_FR.opt_label,
-                            WINDOW_RL.opt_label, WINDOW_RR.opt_label]
-    TYRE_LABELS = [LABELS_DICT[9], LABELS_DICT[14], LABELS_DICT[19],
-                   LABELS_DICT[24]]
-    for label in TYRE_LABELS:
-        ac.setFontSize(label, 25)
-        ac.setPosition(label, 35, 30)
+    WINDOW_RR.draw_tyre_colors(RR.core_temp)
+    RR.measure_hot_cold()
 
 
 def add_labels():
@@ -575,8 +574,8 @@ def add_labels():
     G_FORCES = [LABELS_DICT[39], LABELS_DICT[40]]
     ECU_LABELS = [LABELS_DICT[41], LABELS_DICT[42], LABELS_DICT[43]]
 
-    appWindowLabels = ([LABELS_DICT[32]] + FUEL_LABELS + ELECTRONIC_LABELS +
-                       G_FORCES + ECU_LABELS)
+    app_window_labels = ([LABELS_DICT[32]] + FUEL_LABELS + ELECTRONIC_LABELS +
+                         G_FORCES + ECU_LABELS)
     # Dashboard Labels(Gear,RPM/Speed,Pos/Laps,
     # last_sector_time/performance_meter,LastLap)
     positions = [
@@ -587,7 +586,7 @@ def add_labels():
         (400, 7), (3, 114), (3, 144)  # ECU Images(on)
     ]
 
-    for label, pos in zip(appWindowLabels, positions):
+    for label, pos in zip(app_window_labels, positions):
         ac.setPosition(label, pos[0], pos[1])
 
     for i in ELECTRONIC_LABELS:
