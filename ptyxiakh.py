@@ -14,7 +14,6 @@ try:
 
     import json
     from subprocess import Popen
-    from ui import TyreWindow
     from info_app import add_app, switch_ecu_labels, update_ecu_labels
     from sim_info import info
     from car import Car
