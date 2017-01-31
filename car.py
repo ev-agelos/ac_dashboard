@@ -29,19 +29,19 @@ class Car:
 
     @property
     def speed(self):
-        """Return current speed of the car."""
+        """Return current speed of the CAR."""
         return self._speed
 
     @speed.setter
     def speed(self, value):
-        """Save current and max speed of the car."""
+        """Save current and max speed of the CAR."""
         self._speed = value
         if value > self.max_speed:
             self.max_speed = round(value, 1)
 
     @property
     def tc(self):
-        """Return car's raw traction control value."""
+        """Return CAR's raw traction control value."""
         return self._tc
 
     @tc.setter
@@ -50,7 +50,7 @@ class Car:
         self._tc = value
         if not self.tc_levels:
             self.tc_levels = CAR_DATA.get(self.name, {}).get('tc')
-            # no data for the car or has not any tc values
+            # no data for the CAR or has not any tc values
             if self.tc_levels is None:
                 self.tc_levels = (0, )
         try:
@@ -60,7 +60,7 @@ class Car:
 
     @property
     def abs(self):
-        """Return car's raw abs value."""
+        """Return CAR's raw abs value."""
         return self._abs
 
     @abs.setter
@@ -69,7 +69,7 @@ class Car:
         self._abs = value
         if not self.abs_levels:
             self.abs_levels = CAR_DATA.get(self.name, {}).get('abs')
-            # unknown car or has not any abs values
+            # unknown CAR or has not any abs values
             if self.abs_levels is None:
                 self.abs_levels = (0, )
         try:
@@ -83,9 +83,9 @@ class Car:
 
     def get_fuel_burned(self):
         """
-        Return how many litres the car burned.
+        Return how many litres the CAR burned.
 
         The starting reference point is the <self.lap_starting_fuel> which
-        should be reset after every lap to car's current fuel(<self.fuel>).
+        should be reset after every lap to CAR's current fuel(<self.fuel>).
         """
         return self.lap_starting_fuel - self.fuel

@@ -15,6 +15,7 @@ try:
     import json
     from subprocess import Popen
     from ui import TyreWindow
+    from info_app import add_app, switch_ecu_labels, update_ecu_labels
     from sim_info import info
     from car import Car
     from tyres import get_compound_temps
@@ -41,7 +42,7 @@ LABELS_DICT = {}
 
 STATIC_SHARED_MEMORY_IS_READ = False
 
-NUM_CARS = 1  # at least user's car
+NUM_CARS = 1  # at least user's CAR
 
 
 class Tyres:
@@ -54,14 +55,14 @@ class Tyres:
         self.wear = 0
 
     def measure_hot_cold(self):
-        if self.core_temp < get_compound_temps(Car_0.name,
-                                               Car_0.tyre_compound)[0]:
-            self.cold = Driver_0.current_laptime - (self.opt + self.hot)
-        elif self.core_temp > get_compound_temps(Car_0.name,
-                                                 Car_0.tyre_compound)[1]:
-            self.hot = Driver_0.current_laptime - (self.opt + self.cold)
+        if self.core_temp < get_compound_temps(CAR_0.name,
+                                               CAR_0.tyre_compound)[0]:
+            self.cold = DRIVER_0.current_laptime - (self.opt + self.hot)
+        elif self.core_temp > get_compound_temps(CAR_0.name,
+                                                 CAR_0.tyre_compound)[1]:
+            self.hot = DRIVER_0.current_laptime - (self.opt + self.cold)
         else:
-            self.opt = Driver_0.current_laptime - (self.hot + self.cold)
+            self.opt = DRIVER_0.current_laptime - (self.hot + self.cold)
 
 
 class TyreWindow:
@@ -88,9 +89,9 @@ class TyreWindow:
         ac.setPosition(self.starting_label_no, 35, 30)
 
     def draw_tyre_colors(self, temp):
-        if temp < get_compound_temps(Car_0.name, Car_0.tyre_compound)[0]:
+        if temp < get_compound_temps(CAR_0.name, CAR_0.tyre_compound)[0]:
             ac.setBackgroundColor(self.window, 0, 0, 1)
-        elif temp > get_compound_temps(Car_0.name, Car_0.tyre_compound)[1]:
+        elif temp > get_compound_temps(CAR_0.name, CAR_0.tyre_compound)[1]:
             ac.setBackgroundColor(self.window, 1, 0, 0)
         else:
             ac.setBackgroundColor(self.window, 0, 1, 0)
@@ -158,13 +159,13 @@ FL = Tyres()
 FR = Tyres()
 RL = Tyres()
 RR = Tyres()
-Driver_0 = Driver()
-Car_0 = Car()
+DRIVER_0 = Driver()
+CAR_0 = Car()
 Dashboard_0 = DashBoard(2)
 
 
 def switch_sector(x, y):
-    if Car_0.pit_limiter == 0:
+    if CAR_0.pit_limiter == 0:
         Dashboard_0.vis_sector = int(not bool(Dashboard_0.vis_sector))
 
 
@@ -173,35 +174,35 @@ def check_switch_sector():
         try:
             # TODO: instead of .current_sector_index -> .on_track OR
             # .out_of_pits
-            if Driver_0.total_laps == 0 and Driver_0.current_sector_index > 0:
+            if DRIVER_0.total_laps == 0 and DRIVER_0.current_sector_index > 0:
                 ac.setFontColor(SECTOR.button, 1, 0, 1, 1)
-                sector_text = str(int_to_time(Driver_0.last_sector_time))
+                sector_text = str(int_to_time(DRIVER_0.last_sector_time))
                 # FIXME i re-set the text ~10 lines below..?
                 ac.setText(SECTOR.button, sector_text)
-            elif Driver_0.current_sector_index == 0:
-                if Driver_0.last_sector_time < Driver_0.temp_theoretical["S" + str(len(list(Driver_0.temp_theoretical.keys())) - 1)][1]:
+            elif DRIVER_0.current_sector_index == 0:
+                if DRIVER_0.last_sector_time < DRIVER_0.temp_theoretical["S" + str(len(list(DRIVER_0.temp_theoretical.keys())) - 1)][1]:
                     ac.setFontColor(SECTOR.button, 1, 0, 1, 1)
                 else:
                     ac.setFontColor(SECTOR.button, 1, 1, 0, 1)
-            elif Driver_0.last_sector_time < Driver_0.temp_theoretical[list(Driver_0.temp_theoretical.keys())[Driver_0.current_sector_index - 1]][0]:
+            elif DRIVER_0.last_sector_time < DRIVER_0.temp_theoretical[list(DRIVER_0.temp_theoretical.keys())[DRIVER_0.current_sector_index - 1]][0]:
                 ac.setFontColor(SECTOR.button, 1, 0, 1, 1)
             else:
                 ac.setFontColor(SECTOR.button, 1, 1, 0, 1)
-            sector_text = str(int_to_time(Driver_0.last_sector_time))
+            sector_text = str(int_to_time(DRIVER_0.last_sector_time))
             ac.setText(SECTOR.button, sector_text)
         except Exception:
-            if Driver_0.total_laps == 1 and Driver_0.current_sector_index == 0:
+            if DRIVER_0.total_laps == 1 and DRIVER_0.current_sector_index == 0:
                 ac.setFontColor(SECTOR.button, 1, 0, 1, 1)
-                sector_text = str(int_to_time(Driver_0.last_sector_time))
+                sector_text = str(int_to_time(DRIVER_0.last_sector_time))
                 ac.setText(SECTOR.button, sector_text)
             else:
                 ac.setText(SECTOR.button, "No Sector")
     else:
-        if Driver_0.total_laps == 0:
+        if DRIVER_0.total_laps == 0:
             ac.setText(SECTOR.button, "No Laps")
         else:
-            sector_text = str(round(Driver_0.performance_meter, 1))
-            if Driver_0.performance_meter > 0:
+            sector_text = str(round(DRIVER_0.performance_meter, 1))
+            if DRIVER_0.performance_meter > 0:
                 ac.setFontColor(SECTOR.button, 1, 0, 0, 1)
                 sector_text = '+' + sector_text
             else:
@@ -210,51 +211,51 @@ def check_switch_sector():
 
 
 def switch_fuel(x, y):
-    if Car_0.pit_limiter == 0:
+    if CAR_0.pit_limiter == 0:
         Dashboard_0.vis_fuel = {0: 1, 1: 2}.get(Dashboard_0.vis_fuel, 0)
 
 
 def switch_times(x, y):
-    if Car_0.pit_limiter == 0:
+    if CAR_0.pit_limiter == 0:
         Dashboard_0.vis_times = 1 if not Dashboard_0.vis_times else 0
 
 
 def check_switch_times():
     if Dashboard_0.vis_times == 0:
-        time = Driver_0.pb
+        time = DRIVER_0.pb
         colors = (1, 0, 0, 1)
     else:
-        time = Driver_0.theoretical_best
+        time = DRIVER_0.theoretical_best
         colors = (0.5, 0, 1, 1)
     ac.setText(TIMES.button, "{}".format(int_to_time(time)))
     ac.setFontColor(TIMES.button, *colors)
 
 
 def switch_rpm_kmh(x, y):
-    if Car_0.pit_limiter == 0:
+    if CAR_0.pit_limiter == 0:
         Dashboard_0.vis_rpm_kmh = {0: 1, 1: 2}.get(Dashboard_0.vis_rpm_kmh, 0)
 
 
 def check_switch_rpm_kmh():
     if Dashboard_0.vis_rpm_kmh == 1:
-        ac.setText(RPM_KMH.button, "{0}".format(round(Car_0.max_speed)))
+        ac.setText(RPM_KMH.button, "{0}".format(round(CAR_0.max_speed)))
         ac.setFontColor(RPM_KMH.button, 0.5, 0, 1, 1)
     elif Dashboard_0.vis_rpm_kmh == 2:
-        ac.setText(RPM_KMH.button, "{0}".format(round(Car_0.rpm)))
+        ac.setText(RPM_KMH.button, "{0}".format(round(CAR_0.rpm)))
         ac.setFontColor(RPM_KMH.button, 1, 0, 0, 1)
     else:
-        ac.setText(RPM_KMH.button, "{0}".format(round(Car_0.speed)))
+        ac.setText(RPM_KMH.button, "{0}".format(round(CAR_0.speed)))
 
 
 def switch_pos_laps(x, y):
-    if Car_0.pit_limiter == 0:
+    if CAR_0.pit_limiter == 0:
         Dashboard_0.vis_pos_laps = 1 if not Dashboard_0.vis_pos_laps else 0
 
 
 def check_switch_pos_laps():
     if Dashboard_0.vis_pos_laps == 0:
-        text = "L: {}/{}".format(Driver_0.total_laps + 1,
-                                 Driver_0.number_of_laps)
+        text = "L: {}/{}".format(DRIVER_0.total_laps + 1,
+                                 DRIVER_0.number_of_laps)
     else:
         text = "P: {}/{}".format(POSITION, NUM_CARS)
     ac.setText(POS_LAPS.button, text)
@@ -273,19 +274,19 @@ def acMain(Ptyxiakh):
     APP_WINDOW = ac.newApp("")
     ac.setSize(APP_WINDOW, 600, 170)
     ac.drawBorder(APP_WINDOW, 0)
-    Driver_0.pb = 0
+    DRIVER_0.pb = 0
     for i in range(0, len(ac.getLastSplits(0))):
-        Driver_0.temp_theoretical['S' + str(i)] = []
+        DRIVER_0.temp_theoretical['S' + str(i)] = []
 
     check_log_file()
-    Driver_0.settings.update(nationality=get_user_nationality(),
+    DRIVER_0.settings.update(nationality=get_user_nationality(),
                              controller=get_controller(),
                              racing_mode=get_racing_mode(),
                              track_temp=get_track_temp())
-    Driver_0.assists.update(**get_user_assists())
+    DRIVER_0.assists.update(**get_user_assists())
     TRACK = change_track_name(ac.getTrackName(0))
-    upgrade, Car_0.name = change_car_name(ac.getCarName(0))
-    Driver_0.settings.update(car_upgrade=upgrade)
+    upgrade, CAR_0.name = change_car_name(ac.getCarName(0))
+    DRIVER_0.settings.update(car_upgrade=upgrade)
 
     WINDOW_FL = TyreWindow("F_R", render_tyre_fl, 9)
     WINDOW_FR = TyreWindow("F_L", render_tyre_fr, 14)
@@ -295,7 +296,7 @@ def acMain(Ptyxiakh):
     add_labels()
     NICKNAME = ac.getDriverName(0)
     # FIXME should get the value from sim_info static data, 99999 is bad default
-    Car_0.max_rpm = get_max_rpm(ac.getCarName(0)) or 99999
+    CAR_0.max_rpm = get_max_rpm(ac.getCarName(0)) or 99999
 
     background = ac.addLabel(APP_WINDOW, "")
     ac.setPosition(background, 0, 0)
@@ -306,24 +307,24 @@ def acMain(Ptyxiakh):
 
 def acUpdate(deltaT):
     """Get real time data from Assetto Corsa."""
-    Driver_0.norm_pos = ac.getCarState(0, acsys.CS.NormalizedSplinePosition)
-    Driver_0.temp_total_laps = ac.getCarState(0, acsys.CS.LapCount)
-    Driver_0.current_laptime = ac.getCarState(0, acsys.CS.LapTime)
-    Driver_0.temppb = ac.getCarState(0, acsys.CS.BestLap)
-    Car_0.speed = ac.getCarState(0, acsys.CS.SpeedKMH)
-    Car_0.rpm = ac.getCarState(0, acsys.CS.RPM)
+    DRIVER_0.norm_pos = ac.getCarState(0, acsys.CS.NormalizedSplinePosition)
+    DRIVER_0.temp_total_laps = ac.getCarState(0, acsys.CS.LapCount)
+    DRIVER_0.current_laptime = ac.getCarState(0, acsys.CS.LapTime)
+    DRIVER_0.temppb = ac.getCarState(0, acsys.CS.BestLap)
+    CAR_0.speed = ac.getCarState(0, acsys.CS.SpeedKMH)
+    CAR_0.rpm = ac.getCarState(0, acsys.CS.RPM)
     FL.core_temp, FR.core_temp, RL.core_temp, RR.core_temp = ac.getCarState(
         0, acsys.CS.CurrentTyresCoreTemp)
 
     read_shared_memory()
-    Car_0.g_forces = ac.getCarState(0, acsys.CS.AccG)
-    Car_0.gear = ac.getCarState(0, acsys.CS.Gear)
-    check_ecu()
-    Driver_0.performance_meter = ac.getCarState(0, acsys.CS.PerformanceMeter)
-    set_dashboard_labels(Car_0.gear)
+    CAR_0.g_forces = ac.getCarState(0, acsys.CS.AccG)
+    CAR_0.gear = ac.getCarState(0, acsys.CS.Gear)
+    switch_ecu_labels()
+    DRIVER_0.performance_meter = ac.getCarState(0, acsys.CS.PerformanceMeter)
+    set_dashboard_labels(CAR_0.gear)
 
-    if Driver_0.total_laps < Driver_0.temp_total_laps:
-        Driver_0.total_laps = Driver_0.temp_total_laps
+    if DRIVER_0.total_laps < DRIVER_0.temp_total_laps:
+        DRIVER_0.total_laps = DRIVER_0.temp_total_laps
         search_splits(ac.getLastSplits(0))
         last_lap = sum(ac.getLastSplits(0))
         for window, tyre in zip((WINDOW_FL, WINDOW_FR, WINDOW_RL, WINDOW_RR),
@@ -334,18 +335,18 @@ def acUpdate(deltaT):
             tyre.cold = 0
             tyre.hot = 0
 
-    if Driver_0.current_sector != Driver_0.current_sector_index:
-        Driver_0.current_sector = Driver_0.current_sector_index
+    if DRIVER_0.current_sector != DRIVER_0.current_sector_index:
+        DRIVER_0.current_sector = DRIVER_0.current_sector_index
 
-    if Driver_0.temppb > 0 and (Driver_0.pb == 0 or
-                                Driver_0.temppb < Driver_0.pb):
-        Driver_0.pb = Driver_0.temppb
-        check_time(Driver_0.temppb)
+    if DRIVER_0.temppb > 0 and (DRIVER_0.pb == 0 or
+                                DRIVER_0.temppb < DRIVER_0.pb):
+        DRIVER_0.pb = DRIVER_0.temppb
+        check_time(DRIVER_0.temppb)
 
     if round(FL.core_temp, 1) == round(FR.core_temp, 1) == \
             round(RL.core_temp, 1) == round(RR.core_temp, 1) == \
-            Driver_0.settings['track_temp'] and \
-            len(str(Car_0.fuel)) == 4 or TRACK == "Assetto Dorifto track":
+            DRIVER_0.settings['track_temp'] and \
+            len(str(CAR_0.fuel)) == 4 or TRACK == "Assetto Dorifto track":
         reset_values()
 
 
@@ -361,7 +362,7 @@ def set_dashboard_labels(ac_gear):
     check_switch_pos_laps()
     check_switch_times()
     check_switch_sector()
-    if Car_0.pit_limiter > 0:
+    if CAR_0.pit_limiter > 0:
         ac.setText(RPM_KMH.button, "IN PIT")
         for button in (SECTOR.button, TIMES.button):
             ac.setText(button, "")
@@ -371,28 +372,22 @@ def set_dashboard_labels(ac_gear):
             ac.setVisible(label, 0)
 
         for button in (RPM_KMH.button, POS_LAPS.button, SECTOR.button):
-            if 500 < int(str(Driver_0.current_laptime)[-3:]) < 999:
+            if 500 < int(str(DRIVER_0.current_laptime)[-3:]) < 999:
                 ac.setText(button, "")
-        Car_0.pit_limiter_flag = True
+        CAR_0.pit_limiter_flag = True
     else:
-        if 0 < Car_0.rpm < 10:
-            Car_0.rpm = 0
-        elif Car_0.rpm < 0:
-            Car_0.rpm = -Car_0.rpm
+        if 0 < CAR_0.rpm < 10:
+            CAR_0.rpm = 0
+        elif CAR_0.rpm < 0:
+            CAR_0.rpm = -CAR_0.rpm
 
-    if Car_0.pit_limiter == 0 and Car_0.pit_limiter_flag is True:
+    if CAR_0.pit_limiter == 0 and CAR_0.pit_limiter_flag is True:
         for button in (RPM_KMH.button, POS_LAPS.button, SECTOR.button,
                        TIMES.button):
             ac.setVisible(button, 1)
         for label in FUEL_LABELS:
             ac.setVisible(label, 1)
-        Car_0.pit_limiter_flag = False
-
-
-def check_ecu():
-    ac.setVisible(ECU_LABELS[0], 1 if Car_0.drs else 0)
-    ac.setVisible(ECU_LABELS[1], 1 if Car_0.abs else 0)
-    ac.setVisible(ECU_LABELS[2], 1 if Car_0.tc else 0)
+        CAR_0.pit_limiter_flag = False
 
 
 def check_time(pb):
@@ -401,26 +396,26 @@ def check_time(pb):
     while len(splits) < 3:
         splits.append(0)
 
-    if LOG_FILE_TRACK == TRACK and LOG_FILE_CAR == Car_0.name:
+    if LOG_FILE_TRACK == TRACK and LOG_FILE_CAR == CAR_0.name:
         if LOG_FILE_LAP == 0 or LOG_FILE_LAP > pb:
             pass
-            # Popen([PYTHON, CLIENT, NICKNAME, TRACK, Car_0.name, str(pb),
-            #        str(Car_0.max_speed)] + list(map(str,splits)) +
-            #        USER_ASSISTS + Driver_0.settings['nationality'] +
-            #        Driver_0.settings['controller'] +
-            #        Driver_0.settings['racing_mode']])
+            # Popen([PYTHON, CLIENT, NICKNAME, TRACK, CAR_0.name, str(pb),
+            #        str(CAR_0.max_speed)] + list(map(str,splits)) +
+            #        USER_ASSISTS + DRIVER_0.settings['nationality'] +
+            #        DRIVER_0.settings['controller'] +
+            #        DRIVER_0.settings['racing_mode']])
     else:
         LOG_FILE_TRACK = TRACK
-        LOG_FILE_CAR = Car_0.name
+        LOG_FILE_CAR = CAR_0.name
         LOG_FILE_LAP = pb
-        # Popen([PYTHON, CLIENT, NICKNAME, TRACK, Car_0.name, str(pb),
-        #        str(Car_0.max_speed)] + list(map(str,splits)) + USER_ASSISTS +
-        #        Driver_0.settings['nationality'] +
-        #        Driver_0.settings['controller'] +
-        #        Driver_0.settings['racing_mode'])
+        # Popen([PYTHON, CLIENT, NICKNAME, TRACK, CAR_0.name, str(pb),
+        #        str(CAR_0.max_speed)] + list(map(str,splits)) + USER_ASSISTS +
+        #        DRIVER_0.settings['nationality'] +
+        #        DRIVER_0.settings['controller'] +
+        #        DRIVER_0.settings['racing_mode'])
 
     with open(LOG_FILE, 'w') as fob:
-        json.dump([TRACK, Car_0.name, pb], fob)
+        json.dump([TRACK, CAR_0.name, pb], fob)
 
 
 def check_log_file():
@@ -432,7 +427,7 @@ def check_log_file():
             LOG_FILE_CAR = tempdata[1]
             LOG_FILE_LAP = tempdata[2]
     except IOError:
-        tempdata = ['track', 'car', 0]
+        tempdata = ['track', 'CAR', 0]
         with open(LOG_FILE, 'w') as tempfile:
             json.dump(tempdata, tempfile)
 
@@ -448,25 +443,10 @@ def onFormRender(deltaT):
     draw_dashboard()
 
 
-def draw_g_forces():
-    ac.glColor3f(1, 1, 0)
-    if Car_0.g_forces[2] > 0.05:
-        ac.glQuadTextured(104, 119, 20, 20, IMAGE_ARROW_DOWN)
-    elif Car_0.g_forces[2] < -0.05:
-        ac.glQuadTextured(104, 119, 20, 20, IMAGE_ARROW_UP)
-
-    if Car_0.g_forces[0] > 0.05:
-        ac.glQuadTextured(132, 147, 20, 20, IMAGE_ARROW_RIGHT)
-    elif Car_0.g_forces[0] < -0.05:
-        ac.glQuadTextured(130, 148, 20, 20, IMAGE_ARROW_LEFT)
-    ac.setText(G_FORCES[0], "{0}".format(abs(round(Car_0.g_forces[2], 1))))
-    ac.setText(G_FORCES[1], "{0}".format(abs(round(Car_0.g_forces[0], 1))))
-
-
 def draw_dashboard():
-    if Car_0.rpm < 10:
+    if CAR_0.rpm < 10:
         pass
-    elif Car_0.rpm > Car_0.max_rpm or Car_0.pit_limiter > 0:
+    elif CAR_0.rpm > CAR_0.max_rpm or CAR_0.pit_limiter > 0:
         for i in range(0, 5):
             ac.glQuadTextured(144 + (i * 20), 40, 32, 32, IMAGE_LED_GREEN)
         for i in range(5, 10):
@@ -474,22 +454,22 @@ def draw_dashboard():
         for i in range(10, 15):
             ac.glQuadTextured(144 + (i * 20), 41, 32, 32, IMAGE_LED_BLUE)
     else:
-        if Car_0.name == "Formula Abarth":
-            for i in range(0, round(Car_0.rpm * 3 / Car_0.max_rpm)):
+        if CAR_0.name == "Formula Abarth":
+            for i in range(0, round(CAR_0.rpm * 3 / CAR_0.max_rpm)):
                 if i == 0:
                     for num in range(0, 5):
                         ac.glQuadTextured(144 + (num * 20), 40, 32, 32,
                                           IMAGE_LED_GREEN)
-                elif i == 1 and Car_0.rpm > 4500:
+                elif i == 1 and CAR_0.rpm > 4500:
                     for num in range(5, 10):
                         ac.glQuadTextured(144 + (num * 20), 41, 32, 32,
                                           IMAGE_LED_RED)
-                elif i == 2 and Car_0.rpm > 6300:
+                elif i == 2 and CAR_0.rpm > 6300:
                     for num in range(10, 15):
                         ac.glQuadTextured(144 + (num * 20), 41, 32, 32,
                                           IMAGE_LED_BLUE)
         else:
-            for i in range(0, round(Car_0.rpm * 15 / Car_0.max_rpm)):
+            for i in range(0, round(CAR_0.rpm * 15 / CAR_0.max_rpm)):
                 if 0 <= i < 5:
                     ac.glQuadTextured(144 + (i * 20), 40, 32, 32,
                                       IMAGE_LED_GREEN)
@@ -498,23 +478,23 @@ def draw_dashboard():
                 else:
                     ac.glQuadTextured(144 + (i * 20), 41, 32, 32,
                                       IMAGE_LED_BLUE)
-    if Car_0.pit_limiter > 0:
-        if 500 < int(str(Driver_0.current_laptime)[-3:]) < 999:
+    if CAR_0.pit_limiter > 0:
+        if 500 < int(str(DRIVER_0.current_laptime)[-3:]) < 999:
             ac.glQuadTextured(129, 67, 343, 38, IMAGE_LEDS_YELLOW)
 
 
 def search_splits(splits):
     temp_tp = 0
-    if Driver_0.temp_theoretical:
+    if DRIVER_0.temp_theoretical:
         for num in range(0, len(splits)):
-            Driver_0.temp_theoretical['S' + str(num)].append(splits[num])
-            Driver_0.temp_theoretical['S' + str(num)] = sorted(
-                Driver_0.temp_theoretical['S' + str(num)])
-            temp_tp += Driver_0.temp_theoretical['S' + str(num)][0]
-        if Driver_0.theoretical_best == 0 and temp_tp > 0:
-            Driver_0.theoretical_best = temp_tp
-        elif temp_tp < Driver_0.theoretical_best:
-            Driver_0.theoretical_best = temp_tp
+            DRIVER_0.temp_theoretical['S' + str(num)].append(splits[num])
+            DRIVER_0.temp_theoretical['S' + str(num)] = sorted(
+                DRIVER_0.temp_theoretical['S' + str(num)])
+            temp_tp += DRIVER_0.temp_theoretical['S' + str(num)][0]
+        if DRIVER_0.theoretical_best == 0 and temp_tp > 0:
+            DRIVER_0.theoretical_best = temp_tp
+        elif temp_tp < DRIVER_0.theoretical_best:
+            DRIVER_0.theoretical_best = temp_tp
 
 
 def render_tyre_fl(deltaT):
@@ -538,15 +518,11 @@ def render_tyre_rr(deltaT):
 
 
 def add_labels():
-    global FUEL_LABELS, G_FORCES, ECU_LABELS, ELECTRONIC_LABELS
-    global IMAGE_ARROW_UP, IMAGE_ARROW_DOWN, IMAGE_ARROW_RIGHT, IMAGE_ARROW_LEFT
+    global FUEL_LABELS
     global IMAGE_LED_RED, IMAGE_LED_GREEN, IMAGE_LED_BLUE, IMAGE_LEDS_YELLOW
     global RPM_KMH, TIMES, POS_LAPS, SECTOR
-    window_info = ac.newApp("Info")
-    ac.setSize(window_info, 160, 205)
-    ac.addRenderCallback(window_info, render_info)
 
-    for i in range(32, 44):
+    for i in range(32, 35):
         if i == 33:
             LABELS_DICT[i] = ac.addProgressBar(APP_WINDOW, "")
             ac.setSize(LABELS_DICT[i], 65, 17)
@@ -554,14 +530,7 @@ def add_labels():
             ac.setBackgroundColor(LABELS_DICT[i], 1, 1, 0)
             ac.drawBackground(LABELS_DICT[i], 1)
             ac.drawBorder(LABELS_DICT[i], 0)
-        elif i in (35, 36, 37, 38, 39, 40):
-            LABELS_DICT[i] = ac.addLabel(window_info, "")
-        elif i in (41, 42, 43):
-            LABELS_DICT[i] = ac.addLabel(window_info, "")
-            ac.setSize(LABELS_DICT[i], 30, 30)
-            ac.setBackgroundTexture(LABELS_DICT[i], APP_DIR + "/Images/on.png")
-            ac.setVisible(LABELS_DICT[i], 0)
-        else:  # Benzinh, Taxuthtes
+        else:
             LABELS_DICT[i] = ac.addLabel(APP_WINDOW, "")
 
     ac.setFontColor(LABELS_DICT[32], 1, 0, 0, 1)
@@ -569,33 +538,17 @@ def add_labels():
     ac.setFontColor(LABELS_DICT[34], 0, 0, 0, 1)
 
     FUEL_LABELS = [LABELS_DICT[33], LABELS_DICT[34]]
-    ELECTRONIC_LABELS = [LABELS_DICT[35], LABELS_DICT[36], LABELS_DICT[37],
-                         LABELS_DICT[38]]
-    G_FORCES = [LABELS_DICT[39], LABELS_DICT[40]]
-    ECU_LABELS = [LABELS_DICT[41], LABELS_DICT[42], LABELS_DICT[43]]
 
-    app_window_labels = ([LABELS_DICT[32]] + FUEL_LABELS + ELECTRONIC_LABELS +
-                         G_FORCES + ECU_LABELS)
     # Dashboard Labels(Gear,RPM/Speed,Pos/Laps,
     # last_sector_time/performance_meter,LastLap)
     positions = [
         (290, 58),
         (181, 105), (183, 103),  # progressbar/Fuel,Pre,Est
-        (50, 35), (10, 55), (35, 120), (35, 150),  # Tyres/Optimum temps/ABS/TC
-        (133, 119), (103, 145),  # G_FORCES
-        (400, 7), (3, 114), (3, 144)  # ECU Images(on)
     ]
 
-    for label, pos in zip(app_window_labels, positions):
+    for label, pos in zip(([LABELS_DICT[32]] + FUEL_LABELS), positions):
         ac.setPosition(label, pos[0], pos[1])
 
-    for i in ELECTRONIC_LABELS:
-        ac.setFontSize(i, 12)
-
-    IMAGE_ARROW_UP = ac.newTexture(APP_DIR + "/Images/arrowUp.png")
-    IMAGE_ARROW_DOWN = ac.newTexture(APP_DIR + "/Images/arrowDown.png")
-    IMAGE_ARROW_RIGHT = ac.newTexture(APP_DIR + "/Images/arrowRight.png")
-    IMAGE_ARROW_LEFT = ac.newTexture(APP_DIR + "/Images/arrowLeft.png")
     IMAGE_LED_RED = ac.newTexture(APP_DIR + "/Images/LedRed.png")
     IMAGE_LED_GREEN = ac.newTexture(APP_DIR + "/Images/LedGreen.png")
     IMAGE_LED_BLUE = ac.newTexture(APP_DIR + "/Images/LedBlue.png")
@@ -607,93 +560,65 @@ def add_labels():
     Fuel = Switch(181, 105, 65, 18, 15, switch_fuel)
     POS_LAPS = Switch(163, 70, 80, 30, 25, switch_pos_laps)
     SECTOR = Switch(365, 104, 80, 20, 15, switch_sector)
-
-    # Prepei na mpei teleytaio gia na fortwnei meta to prasino eikonidio gia na
-    # kratietai to diafano...
-    background = ac.addLabel(window_info, "")
-    ac.setPosition(background, 0, 0)
-    ac.setSize(background, 161, 205)
-    car_upgrade_img_path = os.path.join(
-        APP_DIR, "/Images/Info{}.png".format(Driver_0.settings['car_upgrade']))
-    ac.setBackgroundTexture(background, car_upgrade_img_path)
-
-
-def render_info(deltaT):
-    draw_g_forces()
+    add_app(APP_DIR)
 
 
 def reset_values():
-    Car_0.max_speed = 0
-    Driver_0.total_laps = 0
-    Car_0.starting_fuel = 0
+    CAR_0.max_speed = 0
+    DRIVER_0.total_laps = 0
+    CAR_0.starting_fuel = 0
 
 
 def read_shared_memory():
-    Car_0.tc = info.physics.tc
-    tc_text = ''
-    if len(Car_0.tc_levels) > 2:
-        tc_text = '{}/{}'.format(Car_0.tc_level, len(Car_0.tc_levels))
-    ac.setText(ELECTRONIC_LABELS[3], tc_text)
+    CAR_0.tc = info.physics.tc
+    CAR_0.abs = info.physics.abs
 
-    Car_0.abs = info.physics.abs
-    abs_text = ''
-    if len(Car_0.abs_levels) > 2:
-        abs_text = '{}/{}'.format(Car_0.abs_level, len(Car_0.abs_levels))
-    ac.setText(ELECTRONIC_LABELS[2], abs_text)
+    CAR_0.drs = info.physics.drs
+    CAR_0.pit_limiter = info.physics.pitLimiterOn
 
-    Car_0.drs = info.physics.drs
-    Car_0.pit_limiter = info.physics.pitLimiterOn
+    CAR_0.fuel = info.physics.fuel
 
-    Car_0.fuel = info.physics.fuel
-
-    if Car_0.lap_starting_fuel == 0:
-        Car_0.lap_starting_fuel = Car_0.fuel
+    if CAR_0.lap_starting_fuel == 0:
+        CAR_0.lap_starting_fuel = CAR_0.fuel
     if not STATIC_SHARED_MEMORY_IS_READ:
         read_static_shared_memory()
 
     update_fuel_indicator()
     FL.wear, FR.wear, RL.wear, RR.wear = list(info.physics.tyreWear)
 
-    Car_0.tyre_compound = info.graphics.tyreCompound
-    Driver_0.lastSectorTime = info.graphics.lastSectorTime
-    Driver_0.current_sector_index = info.graphics.currentSectorIndex
+    CAR_0.tyre_compound = info.graphics.tyreCompound
+    DRIVER_0.lastSectorTime = info.graphics.lastSectorTime
+    DRIVER_0.current_sector_index = info.graphics.currentSectorIndex
 
-    if Car_0.tyre_compound:
-        # TODO: this should be a property for Car() and should be set when
-        # .tyre_compound is set(once)
-        ac.setText(ELECTRONIC_LABELS[0], Car_0.tyre_compound)
-        min_temp, max_temp = get_compound_temps(Car_0.name, Car_0.tyre_compound)
-        ac.setText(ELECTRONIC_LABELS[1],
-                   "Optimum Temps: {}-{}C".format(min_temp, max_temp))
-
-    Driver_0.number_of_laps = info.graphics.numberOfLaps
+    update_ecu_labels()
+    DRIVER_0.number_of_laps = info.graphics.numberOfLaps
 
 
 def read_static_shared_memory():
     global STATIC_SHARED_MEMORY_IS_READ, NUM_CARS
 
-    Car_0.max_fuel = info.static.maxFuel
-    ac.setRange(FUEL_LABELS[0], 0, Car_0.max_fuel)
+    CAR_0.max_fuel = info.static.maxFuel
+    ac.setRange(FUEL_LABELS[0], 0, CAR_0.max_fuel)
     NUM_CARS = info.static.numCars
 
     STATIC_SHARED_MEMORY_IS_READ = True
 
 
 def update_fuel_indicator():
-    ac.setValue(FUEL_LABELS[0], round(Car_0.fuel))
+    ac.setValue(FUEL_LABELS[0], round(CAR_0.fuel))
 
     if Dashboard_0.vis_fuel == 0:
-        if Driver_0.total_laps > 0:
+        if DRIVER_0.total_laps > 0:
             ac.setText(FUEL_LABELS[1], "Pre: {0:.1f}L".format(
-                Car_0.get_fuel_burned()))
+                CAR_0.get_fuel_burned()))
         else:
             ac.setText(FUEL_LABELS[1], "Pre: ")
     elif Dashboard_0.vis_fuel == 1:
-        if Driver_0.total_laps > 0:
+        if DRIVER_0.total_laps > 0:
             ac.setText(FUEL_LABELS[1], "Laps: {0}".format(
-                Car_0.get_fuel_laps_left()))
+                CAR_0.get_fuel_laps_left()))
         else:
             ac.setText(FUEL_LABELS[1], "Laps: ")
     else:
-        ac.setText(FUEL_LABELS[1], "{0}/{1}L".format(round(Car_0.fuel),
-                                                     round(Car_0.max_fuel)))
+        ac.setText(FUEL_LABELS[1], "{0}/{1}L".format(round(CAR_0.fuel),
+                                                     round(CAR_0.max_fuel)))

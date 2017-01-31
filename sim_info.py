@@ -125,7 +125,7 @@ class SPageFileStatic(ctypes.Structure):
         ('playerNick', c_wchar * 33),
         ('sectorCount', c_int32),
 
-        # car static info
+        # CAR static info
         ('maxTorque', c_float),
         ('maxPower', c_float),
         ('maxRpm', c_int32),
