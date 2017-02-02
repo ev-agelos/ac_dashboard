@@ -38,7 +38,6 @@ APP_WINDOW = 0
 LOG_FILE_LAP = 0
 LOG_FILE_TRACK = ""
 LOG_FILE_CAR = ""
-LABELS_DICT = {}
 
 STATIC_SHARED_MEMORY_IS_READ = False
 
@@ -349,7 +348,7 @@ def set_dashboard_labels(ac_gear):
         gear = gear_maps[ac_gear]
     else:
         gear = ac_gear - 1
-    ac.setText(LABELS_DICT[32], "{0}".format(gear))
+    ac.setText(GEAR_TEXT, "{0}".format(gear))
     check_switch_rpm_kmh()
     check_driver_pos()
     check_switch_pos_laps()
@@ -361,8 +360,8 @@ def set_dashboard_labels(ac_gear):
             ac.setText(button, "")
         ac.setText(POS_LAPS.button, "P: {0}/{1}".format(POSITION, NUM_CARS))
         Dashboard_0.vis_pos_laps = 1
-        for label in FUEL_LABELS:
-            ac.setVisible(label, 0)
+        ac.setVisible(FUEL_TEXT, 0)
+        ac.setVisible(FUEL_BAR, 0)
 
         for button in (RPM_KMH.button, POS_LAPS.button, SECTOR.button):
             if 500 < int(str(DRIVER_0.current_laptime)[-3:]) < 999:
@@ -378,8 +377,8 @@ def set_dashboard_labels(ac_gear):
         for button in (RPM_KMH.button, POS_LAPS.button, SECTOR.button,
                        TIMES.button):
             ac.setVisible(button, 1)
-        for label in FUEL_LABELS:
-            ac.setVisible(label, 1)
+        ac.setVisible(FUEL_TEXT, 1)
+        ac.setVisible(FUEL_BAR, 1)
         CAR_0.pit_limiter_flag = False
 
 
@@ -520,36 +519,26 @@ def render_tyre_rr(deltaT):
 
 
 def add_labels():
-    global FUEL_LABELS
+    global FUEL_BAR, FUEL_TEXT, GEAR_TEXT
     global IMAGE_LED_RED, IMAGE_LED_GREEN, IMAGE_LED_BLUE, IMAGE_LEDS_YELLOW
     global RPM_KMH, TIMES, POS_LAPS, SECTOR
 
-    for i in range(32, 35):
-        if i == 33:
-            LABELS_DICT[i] = ac.addProgressBar(APP_WINDOW, "")
-            ac.setSize(LABELS_DICT[i], 65, 17)
-            ac.setFontColor(LABELS_DICT[i], 1, 0.56, 0, 1)
-            ac.setBackgroundColor(LABELS_DICT[i], 1, 1, 0)
-            ac.drawBackground(LABELS_DICT[i], 1)
-            ac.drawBorder(LABELS_DICT[i], 0)
-        else:
-            LABELS_DICT[i] = ac.addLabel(APP_WINDOW, "")
+    FUEL_BAR = ac.addProgressBar(APP_WINDOW, "")
+    ac.setSize(FUEL_BAR, 65, 17)
+    ac.setPosition(FUEL_BAR, 181, 105)
+    ac.setFontColor(FUEL_BAR, 1, 0.56, 0, 1)
+    ac.setBackgroundColor(FUEL_BAR, 1, 1, 0)
+    ac.drawBackground(FUEL_BAR, 1)
+    ac.drawBorder(FUEL_BAR, 0)
 
-    ac.setFontColor(LABELS_DICT[32], 1, 0, 0, 1)
-    ac.setFontSize(LABELS_DICT[32], 40)
-    ac.setFontColor(LABELS_DICT[34], 0, 0, 0, 1)
+    FUEL_TEXT = ac.addLabel(APP_WINDOW, "")
+    ac.setFontColor(FUEL_TEXT, 0, 0, 0, 1)
+    ac.setPosition(FUEL_TEXT, 183, 103)
 
-    FUEL_LABELS = [LABELS_DICT[33], LABELS_DICT[34]]
-
-    # Dashboard Labels(Gear,RPM/Speed,Pos/Laps,
-    # last_sector_time/performance_meter,LastLap)
-    positions = [
-        (290, 58),
-        (181, 105), (183, 103),  # progressbar/Fuel,Pre,Est
-    ]
-
-    for label, pos in zip(([LABELS_DICT[32]] + FUEL_LABELS), positions):
-        ac.setPosition(label, pos[0], pos[1])
+    GEAR_TEXT= ac.addLabel(APP_WINDOW, "")
+    ac.setFontColor(GEAR_TEXT, 1, 0, 0, 1)
+    ac.setFontSize(GEAR_TEXT, 40)
+    ac.setPosition(GEAR_TEXT, 290, 58)
 
     IMAGE_LED_RED = ac.newTexture(APP_DIR + "/Images/LedRed.png")
     IMAGE_LED_GREEN = ac.newTexture(APP_DIR + "/Images/LedGreen.png")
@@ -600,27 +589,27 @@ def read_static_shared_memory():
     global STATIC_SHARED_MEMORY_IS_READ, NUM_CARS
 
     CAR_0.max_fuel = info.static.maxFuel
-    ac.setRange(FUEL_LABELS[0], 0, CAR_0.max_fuel)
+    ac.setRange(FUEL_BAR, 0, CAR_0.max_fuel)
     NUM_CARS = info.static.numCars
 
     STATIC_SHARED_MEMORY_IS_READ = True
 
 
 def update_fuel_indicator():
-    ac.setValue(FUEL_LABELS[0], round(CAR_0.fuel))
+    ac.setValue(FUEL_BAR, round(CAR_0.fuel))
 
     if Dashboard_0.vis_fuel == 0:
         if DRIVER_0.total_laps > 0:
-            ac.setText(FUEL_LABELS[1], "Pre: {0:.1f}L".format(
+            ac.setText(FUEL_TEXT, "Pre: {0:.1f}L".format(
                 CAR_0.get_fuel_burned()))
         else:
-            ac.setText(FUEL_LABELS[1], "Pre: ")
+            ac.setText(FUEL_TEXT, "Pre: ")
     elif Dashboard_0.vis_fuel == 1:
         if DRIVER_0.total_laps > 0:
-            ac.setText(FUEL_LABELS[1], "Laps: {0}".format(
+            ac.setText(FUEL_TEXT, "Laps: {0}".format(
                 CAR_0.get_fuel_laps_left()))
         else:
-            ac.setText(FUEL_LABELS[1], "Laps: ")
+            ac.setText(FUEL_TEXT, "Laps: ")
     else:
-        ac.setText(FUEL_LABELS[1], "{0}/{1}L".format(round(CAR_0.fuel),
-                                                     round(CAR_0.max_fuel)))
+        ac.setText(FUEL_TEXT, "{0}/{1}L".format(round(CAR_0.fuel),
+                                                round(CAR_0.max_fuel)))
