@@ -14,7 +14,8 @@ try:
 
     import json
     from subprocess import Popen
-    from info_app import add_app, switch_ecu_labels, update_ecu_labels
+    from info_app import (add_app, switch_ecu_labels, update_ecu_labels,
+                          draw_lateral_g_force, draw_transverse_g_force)
     from sim_info import info
     from car import Car
     from tyres import get_compound_temps
@@ -66,23 +67,15 @@ class Tyres:
 
 class TyreWindow:
 
-    # FIXME how static variable opt_label is being used for all 4 tyre windows
-    # and show different temps? this seems that it should have been attribute
-    # per object, not static variable. Or maybe it is a label that shows
-    # something that is the same for all 4 windows?
-    opt_label = None
     window = None
 
-    def __init__(self, tyre_name, render_function, starting_label_no):
+    def __init__(self, tyre_name, render_function):
         self.tyre_name = tyre_name
         self.window = ac.newApp(tyre_name)
-        self.starting_label_no = starting_label_no
         ac.setSize(self.window, 100, 120)
-        opt_label = ac.addLabel(self.window, "%")
-        ac.setPosition(opt_label, 30, 70)
-        for i in range(3):
-            LABELS_DICT[self.starting_label_no + i] = ac.addLabel(self.window,
-                                                                  "")
+        self.opt_label = ac.addLabel(self.window, "%")
+        ac.setPosition(self.opt_label, 30, 70)
+        self.starting_label_no = ac.addLabel(self.window, "")
         ac.addRenderCallback(self.window, render_function)
         ac.setFontSize(self.starting_label_no, 25)
         ac.setPosition(self.starting_label_no, 35, 30)
@@ -140,6 +133,7 @@ class Driver:
         self.current_sector_index = 0
         self.number_of_laps = 0
         self.settings = {}
+        self.assists = {}
 
 
 class DashBoard:
@@ -287,10 +281,10 @@ def acMain(Ptyxiakh):
     upgrade, CAR_0.name = change_car_name(ac.getCarName(0))
     DRIVER_0.settings.update(car_upgrade=upgrade)
 
-    WINDOW_FL = TyreWindow("F_R", render_tyre_fl, 9)
-    WINDOW_FR = TyreWindow("F_L", render_tyre_fr, 14)
-    WINDOW_RL = TyreWindow("R_R", render_tyre_rl, 19)
-    WINDOW_RR = TyreWindow("R_L", render_tyre_rr, 24)
+    WINDOW_FL = TyreWindow("F_R", render_tyre_fl)
+    WINDOW_FR = TyreWindow("F_L", render_tyre_fr)
+    WINDOW_RL = TyreWindow("R_R", render_tyre_rl)
+    WINDOW_RR = TyreWindow("R_L", render_tyre_rr)
 
     add_labels()
     NICKNAME = ac.getDriverName(0)
@@ -318,7 +312,7 @@ def acUpdate(deltaT):
     read_shared_memory()
     CAR_0.g_forces = ac.getCarState(0, acsys.CS.AccG)
     CAR_0.gear = ac.getCarState(0, acsys.CS.Gear)
-    switch_ecu_labels()
+    switch_ecu_labels(CAR_0.drs, CAR_0.abs, CAR_0.tc)
     DRIVER_0.performance_meter = ac.getCarState(0, acsys.CS.PerformanceMeter)
     set_dashboard_labels(CAR_0.gear)
 
@@ -440,6 +434,15 @@ def onFormRender(deltaT):
 
     ac.glColor4f(1, 1, 1, 1)  # RESET COLORS
     draw_dashboard()
+    if CAR_0.g_forces[2] > 0.05:
+        draw_transverse_g_force(CAR_0.g_forces[0])
+    elif CAR_0.g_forces[2] < -0.05:
+        draw_transverse_g_force(CAR_0.g_forces[0], down=False)
+
+    if CAR_0.g_forces[0] > 0.05:
+        draw_lateral_g_force(CAR_0.g_forces[2])
+    elif CAR_0.g_forces[0] < -0.05:
+        draw_lateral_g_force(CAR_0.g_forces[2], right=False)
 
 
 def draw_dashboard():
@@ -559,7 +562,7 @@ def add_labels():
     Fuel = Switch(181, 105, 65, 18, 15, switch_fuel)
     POS_LAPS = Switch(163, 70, 80, 30, 25, switch_pos_laps)
     SECTOR = Switch(365, 104, 80, 20, 15, switch_sector)
-    add_app(APP_DIR)
+    add_app(APP_DIR, onFormRender, DRIVER_0.settings['car_upgrade'])
 
 
 def reset_values():
@@ -589,7 +592,7 @@ def read_shared_memory():
     DRIVER_0.lastSectorTime = info.graphics.lastSectorTime
     DRIVER_0.current_sector_index = info.graphics.currentSectorIndex
 
-    update_ecu_labels()
+    update_ecu_labels(CAR_0)
     DRIVER_0.number_of_laps = info.graphics.numberOfLaps
 
 
