@@ -94,7 +94,7 @@ class FuelLabel(UILabel):
         elif telemetry == 'fuel_laps_left':
             ac.setText(self.id, 'Laps: {}'.format(value))
         elif telemetry == 'fuel':
-            _, max_fuel = ac.getText(self.id).split('/')
+            _, max_fuel = ac.getText(self.id).rstrip('L').split('/')
             ac.setText(self.id, '{}/{}L'.format(round(value), max_fuel))
         elif telemetry == 'max_fuel':
             fuel, _ = ac.getText(self.id).split('/')
