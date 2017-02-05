@@ -22,7 +22,7 @@ def get_track_temp():
 def get_user_nationality():
     """Return user's nationality defined inside the game."""
     config = _read_config_settings('race.ini')
-    return config['CAR_0']['NATIONALITY']
+    return config['CAR']['NATIONALITY']
 
 
 def get_controller():

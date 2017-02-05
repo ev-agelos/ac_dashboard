@@ -4,28 +4,56 @@ from electronics import CAR_DATA
 
 
 class Car:
+    """Information about car's telemetry data."""
+
     tc_levels = tuple()
     abs_levels = tuple()
 
-    def __init__(self):
+    def __init__(self, dashboard):
         self.name = ''
-        self.rpm = 0
+        self._rpm = 0
         self.max_rpm = 0
         self._speed = 0
         self.max_speed = 0
         self.g_forces = (0, 0)
-        self.gear = 0
-        self.fuel = 0
-        self.max_fuel = 0
-        self.lap_starting_fuel = 0
+        self._gear = 0
+        self._fuel = 0
+        self._max_fuel = None
+        self.fuel_at_start = None
         self._tc = 0.0
         self.tc_level = None
         self._abs = 0.0
         self.abs_level = None
         self.drs = 0
-        self.pit_limiter = 0
+        self._pit_limiter = 0
         self.pit_limiter_flag = False
         self.tyre_compound = ""
+        self._lap = 0
+        self._pb = None
+
+        self.dashboard = dashboard
+
+    @property
+    def gear(self):
+        return self._gear
+
+    @gear.setter
+    def gear(self, value):
+        normalized_gears = {0: 'R', 1: 'N'}
+        gear = normalized_gears.get(value)
+        if gear is None:
+            gear = value - 1
+        self._gear = gear
+        self.dashboard.notify(gear=gear)
+
+    @property
+    def rpm(self):
+        return self._rpm
+
+    @rpm.setter
+    def rpm(self, value):
+        self._rpm = value
+        self.dashboard.notify(rpm=value)
 
     @property
     def speed(self):
@@ -38,6 +66,9 @@ class Car:
         self._speed = value
         if value > self.max_speed:
             self.max_speed = round(value, 1)
+            self.dashboard.notify(max_speed=self.max_speed)
+
+        self.dashboard.notify(speed=value)
 
     @property
     def tc(self):
@@ -58,6 +89,8 @@ class Car:
         except ValueError:
             self.tc_level = 0
 
+        self.dashboard.notify(tc=value)
+
     @property
     def abs(self):
         """Return CAR's raw abs value."""
@@ -77,15 +110,50 @@ class Car:
         except ValueError:
             self.abs_level = 0
 
-    def get_fuel_laps_left(self):
-        """Return how many laps are left according to the burned fuel."""
-        return round(self.fuel // self.get_fuel_burned())
+        self.dashboard.notify(abs=value)
 
-    def get_fuel_burned(self):
-        """
-        Return how many litres the CAR burned.
+    @property
+    def fuel(self):
+        return self._fuel
 
-        The starting reference point is the <self.lap_starting_fuel> which
-        should be reset after every lap to CAR's current fuel(<self.fuel>).
-        """
-        return self.lap_starting_fuel - self.fuel
+    @fuel.setter
+    def fuel(self, value):
+        self._fuel = value
+        if self.fuel_at_start is None:  # set the first value
+            self.fuel_at_start = self._fuel
+        self.dashboard.notify(fuel=value)
+        self.dashboard.notify(max_fuel=self.max_fuel)
+
+    @property
+    def lap(self):
+        return self._lap
+
+    @lap.setter
+    def lap(self, value):
+        """Reset lap's starting fuel, calc fuel burned and laps left."""
+        burned_fuel, fuel_laps_left = None, None
+        if value > self._lap:
+            self._lap = value
+            burned_fuel = self.fuel_at_start - self.fuel
+            fuel_laps_left = round(self.fuel // burned_fuel)
+            self.fuel_at_start = self.fuel  # save fuel at start of the lap
+        self.dashboard.notify(burned_fuel=burned_fuel)
+        self.dashboard.notify(fuel_laps_left=fuel_laps_left)
+
+    @property
+    def max_fuel(self):
+        return self._max_fuel
+
+    @max_fuel.setter
+    def max_fuel(self, value):
+        self._max_fuel = value
+        self.dashboard.notify(dict(max_fuel=value))
+
+    @property
+    def pit_limiter(self):
+        return self._pit_limiter
+
+    @pit_limiter.setter
+    def pit_limiter(self, value):
+        self._pit_limiter = value
+        self.dashboard.notify(dict(pit_limiter=value))
