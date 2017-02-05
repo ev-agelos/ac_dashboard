@@ -8,7 +8,7 @@ class UIElement:
                  draw_bg=0, draw_border=0):
         self.id = None
         self.window = window
-        self.default_text = text
+        self.text = text
         self.size = size
         self.pos = pos
         self.font_color = font_color
@@ -38,7 +38,7 @@ class UIButton(UIElement):
 
     def __init__(self, *args, listener=None, **kwargs):
         super(UIElement, self).__init__(*args, **kwargs)
-        self.id = ac.addButton(self.window, self.default_text)
+        self.id = ac.addButton(self.window, self.text)
         if listener is not None:
             ac.addOnClickedListener(self.id, listener)
 
@@ -47,11 +47,11 @@ class UILabel(UIElement):
 
     def __init__(self, *args, **kwargs):
         super(UIElement, self).__init__(*args, **kwargs)
-        self.id = ac.addLabel(self.window, self.default_text)
+        self.id = ac.addLabel(self.window, self.text)
 
 
 class UIProgressBar(UIElement):
 
     def __init__(self, *args, **kwargs):
         super(UIElement, self).__init__(*args, **kwargs)
-        self.id = ac.addProgressBar(self.window, self.defaul_text)
+        self.id = ac.addProgressBar(self.window, self.text)
