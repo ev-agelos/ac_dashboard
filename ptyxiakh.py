@@ -229,6 +229,7 @@ def acUpdate(deltaT):
             DRIVER.settings['track_temp'] and \
             len(str(CAR.fuel)) == 4 or TRACK == "Assetto Dorifto track":
         reset_values()
+    DASHBOARD.update()
 
 
 def set_dashboard_labels():
