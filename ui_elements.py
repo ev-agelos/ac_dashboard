@@ -36,7 +36,8 @@ class UIElement:
 
 class UIButton(UIElement):
 
-    def __init__(self, *args, listener=None, **kwargs):
+    def __init__(self, *args, **kwargs):
+        listener = kwargs.pop('listener', None)
         super(UIElement, self).__init__(*args, **kwargs)
         self.id = ac.addButton(self.window, self.text)
         if listener is not None:
