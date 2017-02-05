@@ -45,8 +45,7 @@ class Driver:
 
         last_sector_index = str(self.sector - 1)
         best_sector_time = min(self.temp_theoretical['S' + last_sector_index] or [value + 1])
-        self.dashboard.notify(
-            is_last_sector_best_personal=value < best_sector_time)
+        self.dashboard.notify(sector_pb=value < best_sector_time)
 
         # save last sector time
         self.temp_theoretical['S' + last_sector_index].append(value)
