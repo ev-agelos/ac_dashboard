@@ -16,13 +16,13 @@ def _read_config_settings(filename):
 def get_track_temp():
     """Return track ambient temp defined inside the game."""
     config = _read_config_settings('race.ini')
-    return float(config['TEMPERATURE']['ambient'])
+    return float(config['TEMPERATURE']['AMBIENT'])
 
 
 def get_user_nationality():
     """Return user's nationality defined inside the game."""
     config = _read_config_settings('race.ini')
-    return config['CAR']['NATIONALITY']
+    return config['CAR_0']['NATIONALITY']
 
 
 def get_controller():
