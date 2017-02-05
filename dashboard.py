@@ -29,7 +29,7 @@ class DashBoard:
     def update(self):
         """Update every ui element depending on it's telemetry subscriptions."""
         for data in self.data_queue:
-            telemetry, value = data.items()
+            (telemetry, value), = data.items()
             for ui_item in self.ui_items.get(telemetry, []):
                 ui_item.run(telemetry, value)
         self.data_queue = []
