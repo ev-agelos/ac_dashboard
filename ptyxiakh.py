@@ -312,6 +312,8 @@ def onFormRender(deltaT):
 
     ac.glColor4f(1, 1, 1, 1)  # RESET COLORS
     draw_dashboard()
+
+def render_info_app(deltaT):
     if CAR.g_forces[2] > 0.05:
         draw_transverse_g_force(CAR.g_forces[0])
     elif CAR.g_forces[2] < -0.05:
@@ -406,7 +408,7 @@ def add_labels():
     IMAGE_LEDS_YELLOW = ac.newTexture(APP_DIR + "/Images/LedsYellow.png")
     ac.addRenderCallback(APP_WINDOW, onFormRender)
 
-    add_app(APP_DIR, onFormRender, DRIVER.settings['car_upgrade'])
+    add_app(APP_DIR, render_info_app, DRIVER.settings['car_upgrade'])
 
 
 def reset_values():
