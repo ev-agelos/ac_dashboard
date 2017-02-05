@@ -38,7 +38,7 @@ class DashBoard:
 class FuelBar(UIProgressBar):
 
     def __init__(self, window, dashboard):
-        super(UIProgressBar, self).__init__(
+        super().__init__(
             window, size=(65, 17), pos=(181, 105), font_color=(1, 0.56, 0, 1),
             bg_color=(1, 1, 0), draw_bg=1, draw_border=0)
 
@@ -73,7 +73,7 @@ class FuelLabel(UILabel):
     ])
 
     def __init__(self, window, dashboard):
-        super(UILabel, self).__init__(window, text='/', pos=(183, 103),
+        super().__init__(window, text='/', pos=(183, 103),
                                       font_color=(0, 0, 0, 1))
         self.dashboard = dashboard
         self.mode = None
@@ -104,7 +104,7 @@ class FuelLabel(UILabel):
 class GearLabel(UILabel):
 
     def __init__(self, window, dashboard):
-        super(UILabel, self).__init__(window, pos=(290, 58),
+        super().__init__(window, pos=(290, 58),
                                       font_color=(1, 0, 0, 1), font_size=40)
         self.dashboard = dashboard
         self.dashboard.subscribe('gear', self)
@@ -122,7 +122,7 @@ class SpeedRpmButton(UIButton):
     ])
 
     def __init__(self, window, dashboard, listener=None):
-        super(UIButton, self).__init__(window, pos=(365, 70), size=(80, 30),
+        super().__init__(window, pos=(365, 70), size=(80, 30),
                                        font_size=25, listener=listener)
         self.dashboard = dashboard
         self.mode = None
@@ -152,7 +152,7 @@ class TimesButton(UIButton):
     ])
 
     def __init__(self, window, dashboard, listener=None):
-        super(UIButton, self).__init__(window, pos=(270, 104), size=(80, 20),
+        super().__init__(window, pos=(270, 104), size=(80, 20),
                                        font_size=15, listener=listener)
         self.dashboard = dashboard
         self.mode = None
@@ -183,7 +183,7 @@ class PosLapsButton(UIButton):
     ])
 
     def __init__(self, window, dashboard, listener=None):
-        super(UIButton, self).__init__(window, text='/', pos=(163, 70),
+        super().__init__(window, text='/', pos=(163, 70),
                                        size=(80, 30), font_size=25,
                                        listener=listener)
         self.dashboard = dashboard
@@ -230,7 +230,7 @@ class SectorButton(UIButton):
     ])
 
     def __init__(self, window, dashboard, listener=None):
-        super(UIButton, self).__init__(window, pos=(365, 104),
+        super().__init__(window, pos=(365, 104),
                                        size=(80, 20), font_size=15,
                                        listener=listener)
         self.dashboard = dashboard
