@@ -234,7 +234,6 @@ def acUpdate(deltaT):
 def set_dashboard_labels():
     position = ac.getCarRealTimeLeaderboardPosition(0) + 1
     DASHBOARD.notify(position=position)
-    check_switch_sector()
     if CAR.pit_limiter > 0:
         ac.setText(RPM_KMH_BUTTON.id, "IN PIT")
         for button in (SECTOR_BUTTON, TIMES_BUTTON):
