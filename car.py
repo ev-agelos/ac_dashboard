@@ -147,7 +147,7 @@ class Car:
     @max_fuel.setter
     def max_fuel(self, value):
         self._max_fuel = value
-        self.dashboard.notify(dict(max_fuel=value))
+        self.dashboard.notify(max_fuel=value)
 
     @property
     def pit_limiter(self):
@@ -156,4 +156,4 @@ class Car:
     @pit_limiter.setter
     def pit_limiter(self, value):
         self._pit_limiter = value
-        self.dashboard.notify(dict(pit_limiter=value))
+        self.dashboard.notify(pit_limiter=value)
