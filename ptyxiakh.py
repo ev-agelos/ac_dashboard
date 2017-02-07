@@ -219,6 +219,7 @@ def set_dashboard_labels():
         ac.setText(POS_LAPS_BUTTON.id, "P: {0}/{1}".format(position, NUM_CARS))
         while POS_LAPS_BUTTON.mode != ('position', 'num_cars'):
             POS_LAPS_BUTTON.switch_mode()
+            DASHBOARD.notify(position=position, num_cars=NUM_CARS)
         FUEL_BUTTON.hide()
 
         for button in (RPM_KMH_BUTTON, POS_LAPS_BUTTON, SECTOR_BUTTON):
