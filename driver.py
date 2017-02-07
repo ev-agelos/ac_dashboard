@@ -60,8 +60,8 @@ class Driver:
             self._total_laps = value
             # calc optimum time after lap completion
             self.theoretical_best = self.get_theoretical_best()
-            self.dashboard.notify(theoretical_best=self.theoretical_best)
-            self.dashboard.notify(total_laps=value)
+        self.dashboard.notify(theoretical_best=self.theoretical_best)
+        self.dashboard.notify(total_laps=value)
 
     @property
     def laps_counter(self):
