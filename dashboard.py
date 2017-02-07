@@ -64,7 +64,7 @@ class FuelBar(UIProgressBar):
             self.pit_limiter_flag = value
 
 
-class FuelLabel(UIButton):
+class FuelButton(UIButton):
 
     modes = cycle([
         ('fuel_percent'),
