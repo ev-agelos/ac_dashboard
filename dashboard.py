@@ -16,7 +16,8 @@ class DashBoard:
 
     def notify(self, **data):
         """Add to the data list the data that got received(key=value)."""
-        self.data_queue.append(data)
+        for telemetry, value in data.items():
+            self.data_queue.append({telemetry: value})
 
     def subscribe(self, telemetry, element):
         """Add the ui element to the telemetry's list."""
