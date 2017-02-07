@@ -137,7 +137,6 @@ def acMain(Ptyxiakh):
     APP_WINDOW = ac.newApp("")
     ac.setSize(APP_WINDOW, 600, 170)
     ac.drawBorder(APP_WINDOW, 0)
-    DRIVER.pb = 0
 
     check_log_file()
     DRIVER.settings.update(nationality=get_user_nationality(),
@@ -172,7 +171,7 @@ def acUpdate(deltaT):
     DRIVER.total_laps = ac.getCarState(0, acsys.CS.LapCount)
     CAR.lap = ac.getCarState(0, acsys.CS.LapCount)
     DRIVER.current_laptime = ac.getCarState(0, acsys.CS.LapTime)
-    DRIVER.temppb = ac.getCarState(0, acsys.CS.BestLap)
+    DRIVER.pb = ac.getCarState(0, acsys.CS.BestLap)
     CAR.speed = ac.getCarState(0, acsys.CS.SpeedKMH)
     CAR.rpm = ac.getCarState(0, acsys.CS.RPM)
     FL.core_temp, FR.core_temp, RL.core_temp, RR.core_temp = ac.getCarState(
@@ -195,10 +194,7 @@ def acUpdate(deltaT):
             tyre.cold = 0
             tyre.hot = 0
 
-    if DRIVER.temppb > 0 and (DRIVER.pb == 0 or
-                                DRIVER.temppb < DRIVER.pb):
-        DRIVER.pb = DRIVER.temppb
-        check_time(DRIVER.temppb)
+    #  check_time(DRIVER.pb)
 
     if round(FL.core_temp, 1) == round(FR.core_temp, 1) == \
             round(RL.core_temp, 1) == round(RR.core_temp, 1) == \
