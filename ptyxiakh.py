@@ -414,8 +414,8 @@ def read_shared_memory():
     sector_index = info.graphics.currentSectorIndex
     if sector_index != DRIVER.sector:
         DRIVER.sector = sector_index
-        DRIVER.last_sector_time = info.graphics.lastSectorTime
         DRIVER.laps_counter = info.graphics.numberOfLaps
+    DRIVER.last_sector_time = info.graphics.lastSectorTime
 
     update_ecu_labels(CAR)
 
