@@ -25,7 +25,7 @@ try:
                           get_user_assists, get_track_temp)
     from car_rpms import get_max_rpm, change_track_name, change_car_name
     from convert_time import int_to_time
-    from dashboard import (DashBoard, FuelBar, FuelLabel, GearLabel,
+    from dashboard import (DashBoard, FuelBar, FuelButton, GearLabel,
                            SpeedRpmButton, TimesButton, PosLapsButton,
                            SectorButton)
 except Exception as err:
@@ -96,29 +96,6 @@ class TyreWindow:
         ac.drawBorder(self.window, 0)
 
 
-class Switch:
-
-    id = None
-
-    def __init__(self, pos_x, pos_y, size_x, size_y, font_size, function):
-        self.id = ac.addButton(APP_WINDOW, "")
-        ac.addOnClickedListener(self.id, function)
-        self.pos_x = pos_x
-        self.pos_y = pos_y
-        self.size_x = size_x
-        self.size_y = size_y
-        self.font_size = font_size
-        self.configure_button()
-
-    def configure_button(self):
-        ac.setPosition(self.id, self.pos_x, self.pos_y)
-        ac.setSize(self.id, self.size_x, self.size_y)
-        ac.setBackgroundOpacity(self.id, 0)
-        ac.setFontColor(self.id, 1, 0, 0, 1)
-        ac.setFontSize(self.id, self.font_size)
-        ac.setFontAlignment(self.id, "center")
-
-
 FL = Tyres()
 FR = Tyres()
 RL = Tyres()
@@ -135,7 +112,7 @@ def switch_sector(x, y):
 
 def switch_fuel(x, y):
     if CAR.pit_limiter == 0:
-        FUEL_LABEL.switch_mode()
+        FUEL_BUTTON.switch_mode()
 
 
 def switch_times(x, y):
@@ -242,7 +219,7 @@ def set_dashboard_labels():
         ac.setText(POS_LAPS_BUTTON.id, "P: {0}/{1}".format(position, NUM_CARS))
         while POS_LAPS_BUTTON.mode != ('position', 'num_cars'):
             POS_LAPS_BUTTON.switch_mode()
-        FUEL_LABEL.hide()
+        FUEL_BUTTON.hide()
 
         for button in (RPM_KMH_BUTTON, POS_LAPS_BUTTON, SECTOR_BUTTON):
             if 500 < int(str(DRIVER.current_laptime)[-3:]) < 999:
@@ -258,7 +235,7 @@ def set_dashboard_labels():
         for button in (RPM_KMH_BUTTON, POS_LAPS_BUTTON, SECTOR_BUTTON,
                        TIMES_BUTTON):
             ac.setVisible(button.id, 1)
-        FUEL_LABEL.show()
+        FUEL_BUTTON.show()
         CAR.pit_limiter_flag = False
 
 
@@ -387,14 +364,12 @@ def render_tyre_rr(deltaT):
 
 
 def add_labels():
-    global FUEL_LABEL, SPEED_RPM_BUTTON, TIMES_BUTTON, POS_LAPS_BUTTON
+    global FUEL_BUTTON, SPEED_RPM_BUTTON, TIMES_BUTTON, POS_LAPS_BUTTON
     global IMAGE_LED_RED, IMAGE_LED_GREEN, IMAGE_LED_BLUE, IMAGE_LEDS_YELLOW
     global RPM_KMH, TIMES
 
     FuelBar(APP_WINDOW, DASHBOARD)
-
-    FUEL_LABEL = FuelLabel(APP_WINDOW, DASHBOARD)
-    Switch(181, 105, 65, 18, 15, switch_fuel)
+    FUEL_BUTTON = FuelButton(APP_WINDOW, DASHBOARD, listener=switch_fuel)
     GearLabel(APP_WINDOW, DASHBOARD)
     SPEED_RPM_BUTTON = SpeedRpmButton(APP_WINDOW, DASHBOARD,
                                       listener=switch_rpm_kmh)
