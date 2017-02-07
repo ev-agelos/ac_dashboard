@@ -213,7 +213,7 @@ def set_dashboard_labels():
     position = ac.getCarRealTimeLeaderboardPosition(0) + 1
     DASHBOARD.notify(position=position)
     if CAR.pit_limiter > 0:
-        ac.setText(RPM_KMH_BUTTON.id, "IN PIT")
+        ac.setText(SPEED_RPM_BUTTON.id, "IN PIT")
         for button in (SECTOR_BUTTON, TIMES_BUTTON):
             ac.setText(button.id, "")
         ac.setText(POS_LAPS_BUTTON.id, "P: {0}/{1}".format(position, NUM_CARS))
@@ -222,7 +222,7 @@ def set_dashboard_labels():
             DASHBOARD.notify(position=position, num_cars=NUM_CARS)
         FUEL_BUTTON.hide()
 
-        for button in (RPM_KMH_BUTTON, POS_LAPS_BUTTON, SECTOR_BUTTON):
+        for button in (SPEED_RPM_BUTTON, POS_LAPS_BUTTON, SECTOR_BUTTON):
             if 500 < int(str(DRIVER.current_laptime)[-3:]) < 999:
                 ac.setText(button.id, "")
         CAR.pit_limiter_flag = True
@@ -233,7 +233,7 @@ def set_dashboard_labels():
             CAR.rpm = -CAR.rpm
 
     if CAR.pit_limiter == 0 and CAR.pit_limiter_flag is True:
-        for button in (RPM_KMH_BUTTON, POS_LAPS_BUTTON, SECTOR_BUTTON,
+        for button in (SPEED_RPM_BUTTON, POS_LAPS_BUTTON, SECTOR_BUTTON,
                        TIMES_BUTTON):
             ac.setVisible(button.id, 1)
         FUEL_BUTTON.show()
@@ -365,7 +365,7 @@ def render_tyre_rr(deltaT):
 
 
 def add_labels():
-    global FUEL_BUTTON, SPEED_RPM_BUTTON, TIMES_BUTTON, POS_LAPS_BUTTON
+    global FUEL_BUTTON, SPEED_RPM_BUTTON, TIMES_BUTTON, POS_LAPS_BUTTON, SECTOR_BUTTON
     global IMAGE_LED_RED, IMAGE_LED_GREEN, IMAGE_LED_BLUE, IMAGE_LEDS_YELLOW
     global RPM_KMH, TIMES
 
