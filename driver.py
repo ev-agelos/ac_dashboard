@@ -41,11 +41,10 @@ class Driver:
     @last_sector_time.setter
     def last_sector_time(self, value):
         self._last_sector_time = int_to_time(value)
-        self.dashboard.notify(last_sector_time=self._last_sector_time)
 
         last_sector_index = str(self.sector - 1)
         best_sector_time = min(self.temp_theoretical['S' + last_sector_index] or [value + 1])
-        self.dashboard.notify(sector_pb=value < best_sector_time)
+        self.dashboard.notify(last_sector=dict(time=self._last_sector_time, is_pb=value<best_sector_time))
 
         # save last sector time
         self.temp_theoretical['S' + last_sector_index].append(value)
