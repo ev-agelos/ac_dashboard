@@ -204,16 +204,16 @@ class PosLapsButton(UIButton):
             prefix = 'P: '
 
         if telemetry == 'total_laps':
-            _, laps_counter = ac.getText(self.id).split('/')
+            _, laps_counter = ac.getText(self.id).lstrip('L: ').split('/')
             text = str(value + 1) + '/' + laps_counter
         elif telemetry == 'laps_counter':
-            total_laps, _ = ac.getText(self.id).split('/')
+            total_laps, _ = ac.getText(self.id).lstrip('L: ').split('/')
             text = total_laps + '/' + str(value)
         elif telemetry == 'num_cars':
-            position, _ = ac.getText(self.id).split('/')
+            position, _ = ac.getText(self.id).lstrip('P: ').split('/')
             text = position + '/' + str(value)
         elif telemetry == 'position':
-            _, num_cars = ac.getText(self.id).split('/')
+            _, num_cars = ac.getText(self.id).lstrip('P: ').split('/')
             text = str(value) + '/' + num_cars
 
         ac.setText(self.id, prefix + text)
