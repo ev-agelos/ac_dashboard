@@ -14,7 +14,6 @@ class Driver:
         self.norm_pos = 0
         self._total_laps = 0
         self.current_laptime = 0
-        self.temppb = 0
         self._performance_meter = None
         self._last_sector_time = None
         self._sector = None
