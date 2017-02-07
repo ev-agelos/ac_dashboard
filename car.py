@@ -66,8 +66,7 @@ class Car:
         self._speed = value
         if value > self.max_speed:
             self.max_speed = round(value, 1)
-            self.dashboard.notify(max_speed=self.max_speed)
-
+        self.dashboard.notify(max_speed=self.max_speed)
         self.dashboard.notify(speed=value)
 
     @property
