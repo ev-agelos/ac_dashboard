@@ -127,7 +127,7 @@ def switch_rpm_kmh(x, y):
 
 def switch_pos_laps(x, y):
     if CAR.pit_limiter == 0:
-        POS_LAPS.switch_mode()
+        POS_LAPS_BUTTON.switch_mode()
 
 
 def acMain(Ptyxiakh):
