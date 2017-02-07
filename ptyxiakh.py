@@ -107,7 +107,7 @@ CAR = Car(DASHBOARD)
 
 def switch_sector(x, y):
     if CAR.pit_limiter == 0:
-        SECTOR_BUTTON.switch.mode()
+        SECTOR_BUTTON.switch_mode()
 
 
 def switch_fuel(x, y):
