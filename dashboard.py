@@ -67,7 +67,7 @@ class FuelBar(UIProgressBar):
 class FuelButton(UIButton):
 
     modes = cycle([
-        ('fuel_percent'),
+        ('fuel_percent', ),
         ('burned_fuel', ),
         ('fuel_laps_left', )
     ])
