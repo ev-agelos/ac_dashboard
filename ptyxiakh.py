@@ -169,7 +169,7 @@ def acMain(Ptyxiakh):
 def acUpdate(deltaT):
     """Get real time data from Assetto Corsa."""
     DRIVER.norm_pos = ac.getCarState(0, acsys.CS.NormalizedSplinePosition)
-    DRIVER.temp_total_laps = ac.getCarState(0, acsys.CS.LapCount)
+    DRIVER.total_laps = ac.getCarState(0, acsys.CS.LapCount)
     CAR.lap = ac.getCarState(0, acsys.CS.LapCount)
     DRIVER.current_laptime = ac.getCarState(0, acsys.CS.LapTime)
     DRIVER.temppb = ac.getCarState(0, acsys.CS.BestLap)
@@ -185,8 +185,7 @@ def acUpdate(deltaT):
     DRIVER.performance_meter = ac.getCarState(0, acsys.CS.PerformanceMeter)
     set_dashboard_labels()
 
-    if DRIVER.total_laps < DRIVER.temp_total_laps:
-        DRIVER.total_laps = DRIVER.temp_total_laps
+    if DRIVER.total_laps > 0:
         last_lap = sum(ac.getLastSplits(0))
         for window, tyre in zip((WINDOW_FL, WINDOW_FR, WINDOW_RL, WINDOW_RR),
                                 (FL, FR, RL, RR)):
