@@ -140,7 +140,7 @@ def switch_fuel(x, y):
 
 def switch_times(x, y):
     if CAR.pit_limiter == 0:
-        TimesButton.switch_mode()
+        TIMES_BUTTON.switch_mode()
 
 
 def switch_rpm_kmh(x, y):
