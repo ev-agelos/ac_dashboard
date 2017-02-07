@@ -18,7 +18,7 @@ class Car:
         self.g_forces = (0, 0)
         self._gear = 0
         self._fuel = None
-        self._max_fuel = None
+        self.max_fuel = None
         self.fuel_at_start = None
         self._tc = 0.0
         self.tc_level = None
@@ -122,7 +122,8 @@ class Car:
             self._fuel = value
             if self.fuel_at_start is None:  # set the first value
                 self.fuel_at_start = self._fuel
-            self.dashboard.notify(fuel=value)
+            fuel_percent = (value * 100) / self.max_fuel if self.max_fuel else None
+            self.dashboard.notify(fuel_percent=fuel_percent)
 
     @property
     def lap(self):
@@ -139,16 +140,6 @@ class Car:
             self.fuel_at_start = self.fuel  # save fuel at start of the lap
         self.dashboard.notify(burned_fuel=burned_fuel)
         self.dashboard.notify(fuel_laps_left=fuel_laps_left)
-
-    @property
-    def max_fuel(self):
-        return self._max_fuel
-
-    @max_fuel.setter
-    def max_fuel(self, value):
-        if value is not None:
-            self._max_fuel = value
-            self.dashboard.notify(max_fuel=value)
 
     @property
     def pit_limiter(self):
