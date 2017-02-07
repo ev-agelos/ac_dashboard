@@ -12,7 +12,6 @@ class Driver:
         self.temp_theoretical = defaultdict(list)
         self.theoretical_best = None
         self.norm_pos = 0
-        self.temp_total_laps = 0
         self._total_laps = 0
         self.current_laptime = 0
         self.temppb = 0
