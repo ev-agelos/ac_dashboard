@@ -40,7 +40,7 @@ class FuelBar(UIProgressBar):
     def __init__(self, window, dashboard):
         super().__init__(
             window, size=(65, 17), pos=(181, 105), font_color=(1, 0.56, 0, 1),
-            bg_color=(1, 1, 0), draw_bg=1, draw_border=0)
+            bg_color=(1, 1, 0), bg_opacity=0.4, draw_border=0)
 
         self.dashboard = dashboard
         self.pit_limiter_flag = None
@@ -64,17 +64,18 @@ class FuelBar(UIProgressBar):
             self.pit_limiter_flag = value
 
 
-class FuelLabel(UILabel):
+class FuelLabel(UIButton):
 
     modes = cycle([
-        ('max_fuel', 'fuel'),
+        ('fuel_percent'),
         ('burned_fuel', ),
         ('fuel_laps_left', )
     ])
 
-    def __init__(self, window, dashboard):
-        super().__init__(window, text='/', pos=(183, 103),
-                                      font_color=(0, 0, 0, 1))
+    def __init__(self, window, dashboard, **kwargs):
+        super().__init__(window, text='/', size=(65, 17), pos=(181, 105),
+                         font_color=(0, 0, 0, 1), draw_border=1,
+                         bg_opacity=0, **kwargs)
         self.dashboard = dashboard
         self.mode = None
         self.switch_mode()
@@ -93,12 +94,9 @@ class FuelLabel(UILabel):
             ac.setText(self.id, 'Pre: ' + text)
         elif telemetry == 'fuel_laps_left':
             ac.setText(self.id, 'Laps: {}'.format(value))
-        elif telemetry == 'fuel':
-            _, max_fuel = ac.getText(self.id).rstrip('L').split('/')
-            ac.setText(self.id, '{}/{}L'.format(round(value), max_fuel))
-        elif telemetry == 'max_fuel':
-            fuel, _ = ac.getText(self.id).split('/')
-            ac.setText(self.id, '{}/{}L'.format(fuel, round(value)))
+        elif telemetry == 'fuel_percent':
+            value = round(value, 1) if value is not None else ''
+            ac.setText(self.id, str(value) + '%')
 
 
 class GearLabel(UILabel):
@@ -121,9 +119,9 @@ class SpeedRpmButton(UIButton):
         ('rpm', )
     ])
 
-    def __init__(self, window, dashboard, listener=None):
+    def __init__(self, window, dashboard, **kwargs):
         super().__init__(window, pos=(365, 70), size=(80, 30),
-                                       font_size=25, listener=listener)
+                                       font_size=25, **kwargs)
         self.dashboard = dashboard
         self.mode = None
         self.switch_mode()
@@ -151,9 +149,9 @@ class TimesButton(UIButton):
         ('theoretical_best', )
     ])
 
-    def __init__(self, window, dashboard, listener=None):
+    def __init__(self, window, dashboard, **kwargs):
         super().__init__(window, pos=(270, 104), size=(80, 20),
-                                       font_size=15, listener=listener)
+                                       font_size=15, **kwargs)
         self.dashboard = dashboard
         self.mode = None
         self.switch_mode()
@@ -182,10 +180,10 @@ class PosLapsButton(UIButton):
         ('position', 'num_cars')
     ])
 
-    def __init__(self, window, dashboard, listener=None):
+    def __init__(self, window, dashboard, **kwargs):
         super().__init__(window, text='/', pos=(163, 70),
                                        size=(80, 30), font_size=25,
-                                       listener=listener)
+                                       **kwargs)
         self.dashboard = dashboard
         self.mode = None
         self.switch_mode()
@@ -229,10 +227,10 @@ class SectorButton(UIButton):
         ('sector_overall_best', ),
     ])
 
-    def __init__(self, window, dashboard, listener=None):
+    def __init__(self, window, dashboard, **kwargs):
         super().__init__(window, pos=(365, 104),
                                        size=(80, 20), font_size=15,
-                                       listener=listener)
+                                       **kwargs)
         self.dashboard = dashboard
         self.mode = None
         self.switch_mode()
