@@ -40,6 +40,7 @@ class UIButton(UIElement):
         listener = kwargs.pop('listener', None)
         super(UIElement, self).__init__(*args, **kwargs)
         self.id = ac.addButton(self.window, self.text)
+        self.draw()
         if listener is not None:
             ac.addOnClickedListener(self.id, listener)
 
@@ -49,6 +50,7 @@ class UILabel(UIElement):
     def __init__(self, *args, **kwargs):
         super(UIElement, self).__init__(*args, **kwargs)
         self.id = ac.addLabel(self.window, self.text)
+        self.draw()
 
 
 class UIProgressBar(UIElement):
@@ -56,3 +58,4 @@ class UIProgressBar(UIElement):
     def __init__(self, *args, **kwargs):
         super(UIElement, self).__init__(*args, **kwargs)
         self.id = ac.addProgressBar(self.window, self.text)
+        self.draw()
