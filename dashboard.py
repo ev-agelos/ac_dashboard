@@ -243,7 +243,7 @@ class SectorButton(UIButton):
             self.dashboard.subscribe(telemetry, self)
 
     def run(self, telemetry, value):
-        if telemetry == 'performace_meter':
+        if telemetry == 'performance_meter':
             sector_time = str(round(value, 1))
             if value > 0:
                 colors = (1, 0, 0, 1)
