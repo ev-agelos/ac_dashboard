@@ -248,12 +248,11 @@ class SectorButton(UIButton):
             sector_time = str(round(value, 1))
             if value > 0:
                 colors = (1, 0, 0, 1)
-                sector_prefix = '+'
+                sector_time = '+' + sector_time
             else:
-                sector_prefix = '-'
                 colors = (0, 1, 0, 1)
             ac.setFontColor(self.id, *colors)
-            ac.setText(self.id, sector_prefix + sector_time)
+            ac.setText(self.id, sector_time)
         elif telemetry == 'last_sector':
             colors = (0, 1, 0, 1) if value['is_pb'] is True else (1, 1, 0, 1)
             ac.setFontColor(self.id, *colors)
