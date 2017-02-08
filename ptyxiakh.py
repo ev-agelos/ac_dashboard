@@ -168,8 +168,10 @@ def acMain(Ptyxiakh):
 def acUpdate(deltaT):
     """Get real time data from Assetto Corsa."""
     DRIVER.norm_pos = ac.getCarState(0, acsys.CS.NormalizedSplinePosition)
-    DRIVER.total_laps = ac.getCarState(0, acsys.CS.LapCount)
-    CAR.lap = ac.getCarState(0, acsys.CS.LapCount)
+    completed_laps = ac.getCarState(0, acsys.CS.LapCount)
+    if completed_laps > DRIVER.total_laps:
+        DRIVER.total_laps = completed_laps
+        CAR.fuel_at_start = CAR.fuel  # keep track of fuel on lap change
     DRIVER.current_laptime = ac.getCarState(0, acsys.CS.LapTime)
     DRIVER.pb = ac.getCarState(0, acsys.CS.BestLap)
     CAR.speed = ac.getCarState(0, acsys.CS.SpeedKMH)
@@ -396,8 +398,6 @@ def read_shared_memory():
     CAR.pit_limiter = info.physics.pitLimiterOn
     CAR.fuel = info.physics.fuel
 
-    if CAR.fuel_at_start == 0:
-        CAR.fuel_at_start = CAR.fuel
     if not STATIC_SHARED_MEMORY_IS_READ:
         read_static_shared_memory()
 
