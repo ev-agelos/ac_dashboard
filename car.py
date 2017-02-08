@@ -121,7 +121,6 @@ class Car:
             self._fuel = value
             if self._fuel_at_start is None and self._fuel > 0:  # set the first value
                 self._fuel_at_start = self._fuel
-                ac.console(str(self._fuel_at_start))
             fuel_percent = (value * 100) / self.max_fuel if self.max_fuel else None
             self.dashboard.notify(fuel_percent=fuel_percent)
 
