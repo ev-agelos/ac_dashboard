@@ -19,7 +19,9 @@ class Car:
         self._gear = 0
         self._fuel = None
         self.max_fuel = None
-        self.fuel_at_start = None
+        self._fuel_at_start = None
+        self.burned_fuel = None
+        self.est_fuel_laps = None
         self._tc = 0.0
         self.tc_level = None
         self._abs = 0.0
@@ -28,8 +30,6 @@ class Car:
         self._pit_limiter = 0
         self.pit_limiter_flag = False
         self.tyre_compound = ""
-        self._lap = 0
-        self._pb = None
 
         self.dashboard = dashboard
 
@@ -119,26 +119,27 @@ class Car:
     def fuel(self, value):
         if value is not None:
             self._fuel = value
-            if self.fuel_at_start is None:  # set the first value
-                self.fuel_at_start = self._fuel
+            if self._fuel_at_start is None and self._fuel > 0:  # set the first value
+                self._fuel_at_start = self._fuel
+                ac.console(str(self._fuel_at_start))
             fuel_percent = (value * 100) / self.max_fuel if self.max_fuel else None
             self.dashboard.notify(fuel_percent=fuel_percent)
 
-    @property
-    def lap(self):
-        return self._lap
+        self.dashboard.notify(burned_fuel=self.burned_fuel)
+        self.dashboard.notify(fuel_laps_left=self.est_fuel_laps)
 
-    @lap.setter
-    def lap(self, value):
-        """Reset lap's starting fuel, calc fuel burned and laps left."""
-        burned_fuel, fuel_laps_left = None, None
-        if value > self._lap:
-            self._lap = value
-            burned_fuel = self.fuel_at_start - self.fuel
-            fuel_laps_left = round(self.fuel // burned_fuel)
-            self.fuel_at_start = self.fuel  # save fuel at start of the lap
-        self.dashboard.notify(burned_fuel=burned_fuel)
-        self.dashboard.notify(fuel_laps_left=fuel_laps_left)
+    @property
+    def fuel_at_start(self):
+        return self._fuel_at_start
+
+    @fuel_at_start.setter
+    def fuel_at_start(self, value):
+        self.burned_fuel = self._fuel_at_start - value
+        if self.burned_fuel == 0:
+            self.est_fuel_laps = 0
+        else:
+            self.est_fuel_laps = round(self.fuel // self.burned_fuel)
+        self._fuel_at_start = value
 
     @property
     def pit_limiter(self):
