@@ -170,7 +170,8 @@ class TimesButton(UIButton):
             colors = (1, 0, 0, 1)
         elif telemetry == 'theoretical_best':
             colors = (0.5, 0, 1, 1)
-        ac.setText(self.id, str(int_to_time(value)))
+        time = int_to_time(value) if value is not None else '--:--:--'
+        ac.setText(self.id, str(time))
         ac.setFontColor(self.id, *colors)
 
 
