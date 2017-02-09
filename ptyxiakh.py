@@ -170,8 +170,9 @@ def acUpdate(deltaT):
     DRIVER.norm_pos = ac.getCarState(0, acsys.CS.NormalizedSplinePosition)
     completed_laps = ac.getCarState(0, acsys.CS.LapCount)
     if completed_laps > DRIVER.total_laps:
-        DRIVER.total_laps = completed_laps
         CAR.fuel_at_start = CAR.fuel  # keep track of fuel on lap change
+    # after saved fuel on lap start, then save the total laps
+    DRIVER.total_laps = completed_laps
     DRIVER.current_laptime = ac.getCarState(0, acsys.CS.LapTime)
     DRIVER.pb = ac.getCarState(0, acsys.CS.BestLap)
     CAR.speed = ac.getCarState(0, acsys.CS.SpeedKMH)
@@ -203,6 +204,7 @@ def acUpdate(deltaT):
             DRIVER.settings['track_temp'] and \
             len(str(CAR.fuel)) == 4 or TRACK == "Assetto Dorifto track":
         reset_values()
+    DASHBOARD.notify(num_cars=NUM_CARS)
     DASHBOARD.update()
 
 
@@ -409,7 +411,7 @@ def read_shared_memory():
     sector_index = info.graphics.currentSectorIndex
     if sector_index != DRIVER.sector:
         DRIVER.sector = sector_index
-        DRIVER.laps_counter = info.graphics.numberOfLaps
+    DRIVER.laps_counter = info.graphics.numberOfLaps
     DRIVER.last_sector_time = info.graphics.lastSectorTime
 
     update_ecu_labels(CAR)
@@ -420,6 +422,4 @@ def read_static_shared_memory():
 
     CAR.max_fuel = info.static.maxFuel
     NUM_CARS = info.static.numCars
-    DASHBOARD.notify(num_cars=NUM_CARS)
-
     STATIC_SHARED_MEMORY_IS_READ = True
