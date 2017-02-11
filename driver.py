@@ -9,19 +9,27 @@ class Driver:
 
     def __init__(self, dashboard):
         self._pb = None
+        self._position = None
         self.temp_theoretical = defaultdict(list)
         self.theoretical_best = None
-        self.norm_pos = 0
         self._total_laps = 0
         self.current_laptime = 0
         self._performance_meter = None
         self._last_sector_time = None
         self._sector = None
-        self._laps_counter = 0
+        self.laps_counter = 0
         self.settings = {}
         self.assists = {}
 
         self.dashboard = dashboard
+
+    @property
+    def position(self):
+        return self._position
+
+    @position.setter
+    def position(self, value):
+        self._position = value + 1
 
     @property
     def sector(self):
@@ -58,16 +66,8 @@ class Driver:
             # calc optimum time after lap completion
             self.theoretical_best = self.get_theoretical_best()
         self.dashboard.notify(theoretical_best=self.theoretical_best)
-        self.dashboard.notify(total_laps=value)
-
-    @property
-    def laps_counter(self):
-        return self._laps_counter
-
-    @laps_counter.setter
-    def laps_counter(self, value):
-        self._laps_counter = value
-        self.dashboard.notify(laps_counter=value)
+        self.dashboard.notify(laps=dict(total_laps=value,
+                                        laps_counter=self.laps_counter))
 
     @property
     def pb(self):
