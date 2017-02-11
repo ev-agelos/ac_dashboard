@@ -45,6 +45,16 @@ AC_TIME_ATTACK = 4
 AC_DRIFT = 5
 AC_DRAG = 6
 
+# Added on Oct 26, 2015
+AC_FLAG_TYPE = c_int32
+AC_NO_FLAG = 0
+AC_BLUE_FLAG = 1
+AC_YELLOW_FLAG = 2
+AC_BLACK_FLAG = 3
+AC_WHITE_FLAG = 4
+AC_CHECKERED_FLAG = 5
+AC_PENALTY_FLAG = 6
+
 
 class SPageFilePhysics(ctypes.Structure):
     _pack_ = 4
@@ -78,6 +88,12 @@ class SPageFilePhysics(ctypes.Structure):
         ('numberOfTyresOut', c_int32),
         ('pitLimiterOn', c_int32),
         ('abs', c_float),
+
+        # Added on Oct 26, 2015
+        ('kersCharge', c_float),
+        ('kersInput', c_float),
+        ('autoShifterOn', c_int32),
+        ('rideHeight', c_float * 2),
     ]
 
 
@@ -107,6 +123,11 @@ class SPageFileGraphic(ctypes.Structure):
         ('replayTimeMultiplier', c_float),
         ('normalizedCarPosition', c_float),
         ('carCoordinates', c_float * 3),
+
+        # Added on Oct 26, 2015
+        ('penaltyTime', c_float),
+        ('flag', AC_FLAG_TYPE),
+        ('idealLineOn', c_int32),
     ]
 
 
@@ -125,7 +146,7 @@ class SPageFileStatic(ctypes.Structure):
         ('playerNick', c_wchar * 33),
         ('sectorCount', c_int32),
 
-        # CAR static info
+        # car static info
         ('maxTorque', c_float),
         ('maxPower', c_float),
         ('maxRpm', c_int32),
