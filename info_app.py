@@ -92,7 +92,7 @@ def switch_ecu_labels(drs, abs_, tc):
     ac.setVisible(ECU_LABELS[43]['label_no'], 1 if tc else 0)
 
 
-def update_ecu_labels(car):
+def update_ecu_labels(car, compound):
     """Update the values of the ecu labels."""
     tc_text = ''
     if len(car.tc_levels) > 2:
@@ -104,10 +104,9 @@ def update_ecu_labels(car):
         abs_text = '{}/{}'.format(car.abs_level, len(car.abs_levels))
     ac.setText(ELECTRONIC_LABELS[37]['label_no'], abs_text)
 
-    if car.tyre_compound:
-        # TODO: this should be a property for Car() and should be set when
-        # .tyre_compound is set(once)
-        ac.setText(ELECTRONIC_LABELS[35]['label_no'], car.tyre_compound)
-        min_temp, max_temp = get_compound_temps(car.name, car.tyre_compound)
-        ac.setText(ELECTRONIC_LABELS[36]['label_no'],
-                   "Optimum Temps: {}-{}C".format(min_temp, max_temp))
+    # TODO: this should be a property for Car() and should be set when
+    # .tyre_compound is set(once)
+    ac.setText(ELECTRONIC_LABELS[35]['label_no'], compound or '')
+    min_temp, max_temp = get_compound_temps(car.name, compound or '')
+    ac.setText(ELECTRONIC_LABELS[36]['label_no'],
+               "Optimum Temps: {}-{}C".format(min_temp, max_temp))
