@@ -1,5 +1,7 @@
 """Car related information."""
 
+import ac
+
 from electronics import CAR_DATA
 
 
@@ -20,18 +22,26 @@ class Car:
         self._fuel = None
         self.max_fuel = None
         self._fuel_at_start = None
-        self.burned_fuel = None
+        self.burned_fuel = 0
         self.est_fuel_laps = None
         self._tc = 0.0
         self.tc_level = None
         self._abs = 0.0
         self.abs_level = None
         self.drs = 0
-        self._pit_limiter = 0
-        self.pit_limiter_flag = False
-        self.tyre_compound = ""
+        self._in_pits = None
 
         self.dashboard = dashboard
+
+    @property
+    def in_pits(self):
+        return self._in_pits
+
+    @in_pits.setter
+    def in_pits(self, value):
+        if bool(value) != self._in_pits:
+            self._in_pits = bool(value)
+            self.dashboard.notify(in_pits=self._in_pits)
 
     @property
     def gear(self):
@@ -53,7 +63,7 @@ class Car:
     @rpm.setter
     def rpm(self, value):
         self._rpm = value
-        self.dashboard.notify(rpm=value)
+        self.dashboard.notify(rpm=dict(current=value, max=self.max_rpm))
 
     @property
     def speed(self):
@@ -66,8 +76,7 @@ class Car:
         self._speed = value
         if value > self.max_speed:
             self.max_speed = round(value, 1)
-        self.dashboard.notify(max_speed=self.max_speed)
-        self.dashboard.notify(speed=value)
+        self.dashboard.notify(speed=value, max_speed=self.max_speed)
 
     @property
     def tc(self):
@@ -86,6 +95,8 @@ class Car:
         try:
             self.tc_level = self.tc_levels.index(round(value, 2))
         except ValueError:
+            ac.log("Ptyxiakh: Unknown TC value {} for car {}"
+                   .format(round(value, 2), self.name))
             self.tc_level = 0
 
         self.dashboard.notify(tc=value)
@@ -107,6 +118,8 @@ class Car:
         try:
             self.abs_level = self.abs_levels.index(round(value, 2))
         except ValueError:
+            ac.log("Ptyxiakh: Unknown ABS value {} for car {}"
+                   .format(round(value, 2), self.name))
             self.abs_level = 0
 
         self.dashboard.notify(abs=value)
@@ -121,11 +134,11 @@ class Car:
             self._fuel = value
             if self._fuel_at_start is None and self._fuel > 0:  # set the first value
                 self._fuel_at_start = self._fuel
-            fuel_percent = (value * 100) / self.max_fuel if self.max_fuel else None
+            fuel_percent = (value * 100) / self.max_fuel
             self.dashboard.notify(fuel_percent=fuel_percent)
 
-        self.dashboard.notify(burned_fuel=self.burned_fuel)
-        self.dashboard.notify(fuel_laps_left=self.est_fuel_laps)
+        self.dashboard.notify(burned_fuel=self.burned_fuel,
+                              fuel_laps_left=self.est_fuel_laps)
 
     @property
     def fuel_at_start(self):
@@ -139,12 +152,3 @@ class Car:
         else:
             self.est_fuel_laps = round(self.fuel // self.burned_fuel)
         self._fuel_at_start = value
-
-    @property
-    def pit_limiter(self):
-        return self._pit_limiter
-
-    @pit_limiter.setter
-    def pit_limiter(self, value):
-        self._pit_limiter = value
-        self.dashboard.notify(pit_limiter=value)
