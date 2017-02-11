@@ -20,7 +20,7 @@ try:
     from tyres import FL, FR, RL, RR, WINDOW_FL, WINDOW_FR, WINDOW_RL, WINDOW_RR
     from settings import (get_user_nationality, get_controller, get_racing_mode,
                           get_user_assists, get_track_temp)
-    from car_rpms import get_max_rpm, change_track_name, change_car_name
+    from car_rpms import change_track_name, change_car_name
     from convert_time import int_to_time
     from dashboard import (DashBoard, FuelBar, FuelButton, GearLabel,
                            SpeedRpmButton, TimesButton, PosLapsButton,
@@ -210,8 +210,9 @@ def render_info_app(deltaT):
 def read_shared_memory():
     global STATIC_SHARED_MEMORY_IS_READ, NUM_CARS
     if not STATIC_SHARED_MEMORY_IS_READ:
-        while CAR.max_fuel is None:
+        while CAR.max_fuel is None or CAR.max_rpm is None:
             CAR.max_fuel = info.static.maxFuel
+            CAR.max_rpm = info.static.maxRpm
         NUM_CARS = info.static.numCars
         STATIC_SHARED_MEMORY_IS_READ = True
 
