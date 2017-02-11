@@ -1,32 +1,133 @@
+import os
+
 import ac
 
 
 class UIElement:
 
-    def __init__(self, window, text='', size=(20, 20), pos=(0, 0),
+    white = (1, 1, 1)
+    black = (0, 0, 0)
+    red = (1, 0, 0)
+    green = (0, 1, 0)
+    blue = (0, 0, 1)
+    yellow = (1, 1, 0)
+    purple = (0.5, 0, 1)
+
+    def __init__(self, text='', text_align='center', size=(20, 20), pos=(0, 0),
                  font_color=(1, 1, 1, 1), font_size=12, bg_color=(1, 1, 1),
                  draw_bg=1, bg_opacity=0.6, draw_border=0):
         self.id = None
-        self.window = window
-        self.text = text
-        self.size = size
-        self.pos = pos
-        self.font_color = font_color
-        self.font_size = font_size
-        self.bg_color = bg_color
-        self.draw_bg = draw_bg  # 0 (transparent) or 1 (not trasparent)
-        self.bg_opacity = bg_opacity  # 0 <= float <= 1
-        self.draw_border = draw_border
+        self._window = None
+        self._text = text
+        self._text_align = text_align
+        self._size = size
+        self._position = pos
+        self._font_color = font_color
+        self._font_size = font_size
+        self._bg_color = bg_color
+        self._draw_bg = draw_bg  # 0 (transparent) or 1 (not trasparent)
+        self._bg_opacity = bg_opacity  # alpha channel 0 <= float <= 1
+        self._draw_border = draw_border
 
-    def draw(self):
-        ac.setSize(self.id, *self.size)
-        ac.setPosition(self.id, *self.pos)
-        ac.setFontColor(self.id, *self.font_color)
-        ac.setFontSize(self.id, self.font_size)
-        ac.setBackgroundColor(self.id, *self.bg_color)
-        ac.setBackgroundOpacity(self.id, self.bg_opacity)
-        ac.drawBackground(self.id, self.draw_bg)
-        ac.drawBorder(self.id, self.draw_border)
+    @property
+    def text(self):
+        return self._text
+
+    @text.setter
+    def text(self, value):
+        self._text = value
+        ac.setText(self.id, value)
+
+    @property
+    def text_align(self):
+        return self._text_align
+
+    @text_align.setter
+    def text_align(self, value):
+        self._text_align = value
+        if value in ('left', 'center', 'right'):
+            ac.setFontAlignment(self.id, value)
+        else:
+            ac.console("Text align <{}> is not supported.".format(value))
+
+    @property
+    def size(self):
+        return self._size
+
+    @size.setter
+    def size(self, value):
+        self._size = value
+        ac.setSize(self.id, *value)
+
+    @property
+    def position(self):
+        return self._position
+
+    @position.setter
+    def position(self, value):
+        self._position = value
+        ac.setPosition(self.id, *value)
+
+    @property
+    def font_color(self):
+        return self._font_color
+
+    @font_color.setter
+    def font_color(self, value):
+        self._font_color = value
+        ac.setFontColor(self.id, *value)
+
+    @property
+    def font_size(self):
+        return self._font_size
+
+    @font_size.setter
+    def font_size(self, value):
+        self._font_size = value
+        ac.setFontSize(self.id, value)
+
+    @property
+    def bg_color(self):
+        return self._bg_color
+
+    @bg_color.setter
+    def bg_color(self, value):
+        self._bg_color = value
+        ac.setBackgroundColor(self.id, *value)
+
+    @property
+    def bg_opacity(self):
+        return self._bg_opacity
+
+    @bg_opacity.setter
+    def bg_opacity(self, value):
+        self._bg_opacity = value
+        ac.setBackgroundOpacity(self.id, value)
+
+    @property
+    def draw_bg(self):
+        return self._draw_bg
+
+    @draw_bg.setter
+    def draw_bg(self, value):
+        self._draw_bg = value
+        ac.drawBackground(self.id, value)
+
+    @property
+    def draw_border(self):
+        return self._draw_border
+
+    @draw_border.setter
+    def draw_border(self, value):
+        self._draw_border = value
+        ac.drawBorder(self.id, value)
+
+    def _draw(self):
+        """Re-set the values to attributes to invoke the properties."""
+        for attribute, value in vars(self).items():
+            # only private attributes, except self window of course
+            if attribute.startswith('_') and attribute != '_window':
+                setattr(self, attribute[1:], value)
 
     def show(self):
         ac.setVisible(self.id, 1)
@@ -37,26 +138,131 @@ class UIElement:
 
 class UIButton(UIElement):
 
-    def __init__(self, *args, **kwargs):
-        listener = kwargs.pop('listener', None)
+    def __init__(self, listener, *args, **kwargs):
+        self.listener = listener
         super().__init__(*args, **kwargs)
-        self.id = ac.addButton(self.window, self.text)
-        self.draw()
-        if listener is not None:
-            ac.addOnClickedListener(self.id, listener)
+        self.lock = False
+
+    @property
+    def window(self):
+        return self._window
+
+    @window.setter
+    def window(self, value):
+        self._window = value
+        self.id = ac.addButton(self._window, '')
+        ac.addOnClickedListener(self.id, self.listener)
+        self._draw()
+
+    def show(self):
+        """Show the text of the button instead of the actual button."""
+        self.text = self._text
+
+    def hide(self):
+        """Hide the text of the button instead of hiding the button."""
+        _text = self._text  # keep what was before setting new text
+        self.text = ''  # trigger the setter
+        self._text = _text  # save the original one
 
 
 class UILabel(UIElement):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.id = ac.addLabel(self.window, self.text)
-        self.draw()
+
+    @property
+    def window(self):
+        return self._window
+
+    @window.setter
+    def window(self, value):
+        self._window = value
+        self.id = ac.addLabel(self._window, '')
+        self._draw()
 
 
 class UIProgressBar(UIElement):
 
     def __init__(self, *args, **kwargs):
+        self._range = (0, 100)
         super().__init__(*args, **kwargs)
-        self.id = ac.addProgressBar(self.window, self.text)
-        self.draw()
+
+    @property
+    def window(self):
+        return self._window
+
+    @window.setter
+    def window(self, value):
+        self._window = value
+        self.id = ac.addProgressBar(self._window, '')
+        self._draw()
+
+    @property
+    def range(self):
+        return self._range
+
+    @range.setter
+    def range(self, value):
+        self._range = value
+        ac.setRange(self.id, *value)
+
+    @property
+    def percent(self):
+        return self._percent
+
+    @percent.setter
+    def percent(self, value):
+        self._percent = value
+        ac.setValue(self.id, value)
+
+
+class Texture:
+
+    id = None
+    filename = ''
+    images_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)),
+                              'Images')
+
+    @classmethod
+    def _load_texture(cls):
+        if cls.id is None:
+            cls.id = ac.newTexture(os.path.join(cls.images_dir, cls.filename))
+
+    @classmethod
+    def _draw_texture(cls, led):
+        ac.glQuadTextured(led.pos_x, led.pos_y, led.width, led.height, cls.id)
+
+
+class Led(Texture):
+
+    pos_x = 144
+    pos_y = 40
+    width = 32
+    height = 32
+
+    def __init__(self, pos_x=144, pos_y=40, width=32, height=32):
+        self.pos_x = pos_x
+        self.pos_y = pos_y
+        self.width = width
+        self.height = height
+        super()._load_texture()
+
+    def draw(self):
+        super()._draw_texture(self)
+
+
+class RedLed(Led):
+
+    filename = 'LedRed.png'
+    pos_y = Led.pos_y + 1
+
+
+class GreenLed(Led):
+
+    filename = 'LedGreen.png'
+
+
+class BlueLed(Led):
+
+    filename = 'LedBlue.png'
+    pos_y = Led.pos_y + 1
