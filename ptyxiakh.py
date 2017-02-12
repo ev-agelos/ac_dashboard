@@ -34,7 +34,6 @@ import acsys
 
 
 APP_DIR = os.path.split(os.path.abspath(__file__))[0]
-GAME_DIR = APP_DIR.split("apps\\python\\ptyxiakh")[0]
 CLIENT = os.path.join(APP_DIR, "Python33", "Client.py")
 PYTHON = os.path.join(APP_DIR, "Python33", "pythonw.exe")
 LOG_FILE = os.path.join(APP_DIR, "ACRanking.txt")
