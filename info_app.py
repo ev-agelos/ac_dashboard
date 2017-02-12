@@ -26,7 +26,6 @@ IMAGE_ARROW_LEFT = None
 IMAGE_ARROW_RIGHT = None
 
 
-# FIXME call this function from ptyxiakh(dont forget to pass the args!)
 def add_app(app_dir, render_function, car_upgrade):
     """Add the info window/app."""
     global IMAGE_ARROW_DOWN, IMAGE_ARROW_UP, IMAGE_ARROW_LEFT, IMAGE_ARROW_RIGHT
