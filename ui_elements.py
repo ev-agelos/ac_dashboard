@@ -183,8 +183,8 @@ class UIProgressBar(UIElement):
 
     @percent.setter
     def percent(self, value):
-        self._percent = value
-        ac.setValue(self.id, value)
+        self._percent = value/100  # need to be 0.0 <= value <= 1.0
+        ac.setValue(self.id, self._percent)
 
 
 class UIButton(UIElement):
