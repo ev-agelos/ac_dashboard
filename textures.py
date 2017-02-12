@@ -27,11 +27,11 @@ class Led(Texture):
     width = 32
     height = 32
 
-    def __init__(self, pos_x=144, pos_y=40, width=32, height=32):
-        self.pos_x = pos_x
-        self.pos_y = pos_y
-        self.width = width
-        self.height = height
+    def __init__(self, pos_x=None, pos_y=None, width=None, height=None):
+        self.pos_x = pos_x or self.pos_x
+        self.pos_y = pos_y or self.pos_y
+        self.width = width or self.width
+        self.height = height or self.height
         super()._load_texture()
 
     def draw(self):
