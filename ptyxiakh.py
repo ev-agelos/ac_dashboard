@@ -4,7 +4,7 @@ try:
     import os
     import sys
     import platform
-    sys.path.insert(0, "apps/python/ptyxiakh/DLLs")
+    sys.path.insert(0, "apps/python/ac_dashboard/DLLs")
     SYSDIR = "stdlib64" if platform.architecture()[0] == "64bit" else "stdlib"
     sys.path.insert(0, os.path.join(os.path.dirname(__file__), SYSDIR))
     os.environ['PATH'] += ';.'
@@ -28,7 +28,7 @@ try:
                            SPEED_RPM_BUTTON, TIMES_BUTTON, POS_LAPS_BUTTON,
                            SECTOR_BUTTON)
 except Exception as err:
-    ac.log("PTYXIAKH " + str(err))
+    ac.log("ac_dashboard " + str(err))
 import acsys
 
 
@@ -39,7 +39,7 @@ DRIVER = Driver(DASHBOARD)
 CAR = Car(DASHBOARD)
 
 
-def acMain(Ptyxiakh):
+def acMain(ac_version):
     """Main function that is invoked by Assetto Corsa."""
     global APP_WINDOW
     APP_WINDOW = ac.newApp("")
@@ -68,7 +68,7 @@ def acMain(Ptyxiakh):
     ac.setPosition(background, 0, 0)
     ac.setSize(background, 600, 170)
     ac.setBackgroundTexture(background, app_dir + "/Images/Dashboard.png")
-    return "AC-Ranking"
+    return "AC Dashboard"
 
 
 def acUpdate(deltaT):
