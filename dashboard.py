@@ -1,8 +1,9 @@
 """Main dashboard that shows the car's info about speed, gears times etc."""
 
+from itertools import cycle
 
 from utils import int_to_time
-from ui_elements import UIProgressBar, UILabel, ModesButton
+from ui_elements import UIProgressBar, UILabel, UIButton
 from textures import Led, RedLed, GreenLed, BlueLed, YellowLeds
 
 
@@ -34,13 +35,17 @@ class DashBoard:
         self.data_queue = []
 
 
-class DashboardButton(ModesButton):
-    """Like ModesButton but (un)sub (from)to dashboard when changing mode."""
+class DashboardButton(UIButton):
+    """Like UIButton but (un)sub (from)to dashboard when changing mode."""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.mode = None
 
     def click(self):
         if self.mode is not None:
             self.dashboard.unsubscribe(self.mode, self)
-        super().click()
+        self.mode = next(self.modes)
         self.dashboard.subscribe(self.mode, self)
 
 
@@ -128,7 +133,7 @@ class FuelBar(UIProgressBar):
 
 class FuelButton(DashboardButton):
 
-    _modes = ['fuel_percent', 'burned_fuel', 'fuel_laps_left']
+    modes = cycle(['fuel_percent', 'burned_fuel', 'fuel_laps_left'])
 
     def __init__(self, dashboard):
         super().__init__(fuel_click, text='/', size=(78, 19), pos=(181, 106),
@@ -137,10 +142,13 @@ class FuelButton(DashboardButton):
         self.click()
 
     def run(self, telemetry, value):
-        info = {self._modes[0]: '{}%'.format(round(value, 1)),
-                self._modes[1]: 'Pre: {0:.1f}L'.format(value),
-                self._modes[2]: 'Laps: {}'.format(value)}
-        self.text = info.get(telemetry, '')
+        if telemetry =='fuel_percent':
+            text = '{}%'.format(round(value, 1))
+        elif telemetry == 'burned_fuel':
+            text = 'Pre: {0:.1f}L'.format(value)
+        else:
+            text = 'Laps: {}'.format(value)
+        self.text = text
 
 
 class GearLabel(UILabel):
@@ -157,7 +165,7 @@ class GearLabel(UILabel):
 
 class SpeedRpmButton(DashboardButton):
 
-    _modes = ['speed', 'max_speed', 'rpm']
+    modes = cycle(['speed', 'max_speed', 'rpm'])
 
     def __init__(self, dashboard):
         super().__init__(rpm_speed_click, pos=(355, 67), size=(80, 35),
@@ -180,6 +188,7 @@ class SpeedRpmButton(DashboardButton):
         elif telemetry == 'in_pits':
             if value is True:
                 self.dashboard.unsubscribe(self.mode, self)
+                self.mode = None
                 self.text = 'IN PITS'
                 self.font_color = (1, 0, 0, 1)
             else:
@@ -195,7 +204,7 @@ class SpeedRpmButton(DashboardButton):
 
 class TimesButton(DashboardButton):
 
-    _modes = ['pb', 'theoretical_best']
+    modes = cycle(['pb', 'theoretical_best'])
 
     def __init__(self, dashboard):
         super().__init__(times_click, pos=(268, 105), size=(80, 20),
@@ -226,7 +235,7 @@ class TimesButton(DashboardButton):
 
 class PosLapsButton(DashboardButton):
 
-    _modes = ['laps', 'position']
+    modes = cycle(['laps', 'position'])
 
     def __init__(self, dashboard):
         super().__init__(pos_laps_click, text='/', pos=(180, 67),
@@ -255,7 +264,7 @@ class PosLapsButton(DashboardButton):
 
 class SectorButton(DashboardButton):
 
-    _modes = ['performance_meter', 'last_sector']
+    modes = cycle(['performance_meter', 'last_sector'])
 
     def __init__(self, dashboard, *args):
         super().__init__(sector_click, *args, pos=(355, 105), size=(80, 20),
