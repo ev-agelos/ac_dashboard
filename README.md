@@ -1,13 +1,13 @@
 # ac_dashboard
 
-App showing car's/driver's information for the game Assetto Corsa
+App showing car's telemetry and driver's lap times for the game Assetto Corsa
 
 ### Installation
 Download via github's download button, **rename** the folder to **ac_dashboard** and place it in Assetto corsa's app folder, example:
 
 >C:\Program Files (x86)\Steam\steamapps\common\assettocorsa\apps\python\ac_dashboard
 
-To enable/open the app, just click on the right hand side inside the game in the task bar where all apps exist.
+To enable/open the app, just click on the right side inside the game in the task bar where all apps exist.
 
 ### Information
 The app consists of 6 windows:
