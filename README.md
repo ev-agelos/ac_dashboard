@@ -40,3 +40,5 @@ The app consists of 6 windows:
   - blue(below optimum tyre temperature)
   - green(optimum tyre temperature)
   - red(over optimum tyre temperature)
+
+![alt text](https://github.com/ev-agelos/ac_dashboard/blob/master/app_ingame.jpg "Logo Title Text 1")
