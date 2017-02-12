@@ -111,8 +111,8 @@ class Car:
         try:
             self.tc_level = self.tc_levels.index(round(value, 2))
         except ValueError:
-            ac.log("Ptyxiakh: Unknown TC value {} for car {}"
-                   .format(round(value, 2), self.name))
+            # ac.log("Ptyxiakh: Unknown TC value {} for car {}"
+            #        .format(round(value, 2), self.name))
             self.tc_level = 0
 
         self.dashboard.notify(tc=value)
@@ -134,8 +134,8 @@ class Car:
         try:
             self.abs_level = self.abs_levels.index(round(value, 2))
         except ValueError:
-            ac.log("Ptyxiakh: Unknown ABS value {} for car {}"
-                   .format(round(value, 2), self.name))
+            # ac.log("Ptyxiakh: Unknown ABS value {} for car {}"
+            #        .format(round(value, 2), self.name))
             self.abs_level = 0
 
         self.dashboard.notify(abs=value)
