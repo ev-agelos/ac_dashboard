@@ -121,11 +121,12 @@ class UIElement:
         ac.drawBorder(self.id, value)
 
     def _draw(self):
-        """Re-set the values to attributes to invoke the properties."""
-        for attribute, value in vars(self).items():
-            # only private attributes, except self window of course
-            if attribute.startswith('_') and attribute != '_window':
-                setattr(self, attribute[1:], value)
+        """Re-set attributes to invoke their properties now."""
+        for attribute in UIElement.__init__.__code__.co_names:
+            if isinstance(attribute, str) and \
+                    attribute not in ('id', '_window') and \
+                    hasattr(self, attribute):
+                setattr(self, attribute[1:], getattr(self, attribute))
 
     def show(self):
         ac.setVisible(self.id, 1)
