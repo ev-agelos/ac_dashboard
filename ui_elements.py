@@ -1,7 +1,5 @@
 import ac
 
-from itertools import cycle
-
 
 class UIElement:
 
@@ -215,20 +213,3 @@ class UIButton(UIElement):
         _text = self._text  # keep original text before setting new value
         self.text = ''  # trigger the setter
         self._text = _text  # save back the original one
-
-
-class ModesButton(UIButton):
-    """Like UIButton but able to cycle between multiple modes when clicked."""
-
-    _modes = []
-    mode = None
-
-    @property
-    def modes(self):
-        return cycle(self._modes)
-
-    def click(self):
-        try:
-            self.mode = next(self.modes)
-        except StopIteration:  # _modes is empty
-            self.mode = None
