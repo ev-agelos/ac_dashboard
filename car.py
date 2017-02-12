@@ -12,7 +12,8 @@ class Car:
     abs_levels = tuple()
 
     def __init__(self, dashboard):
-        self.name = ''
+        self._name = ''
+        self.upgrade = ''
         self._rpm = 0
         self.max_rpm = 0
         self._speed = 0
@@ -32,6 +33,16 @@ class Car:
         self._in_pits = None
 
         self.dashboard = dashboard
+
+    @property
+    def name(self):
+        return self._name
+
+    @name.setter
+    def name(self, value):
+        self._name = value
+        if value.endswith(('_s1', '_s2', '_s3', '_drift', '_dtm')):
+            self.upgrade = value.split('_')[-1]
 
     @property
     def in_pits(self):

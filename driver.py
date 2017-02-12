@@ -1,8 +1,6 @@
 from collections import defaultdict
 
-import ac
-
-from convert_time import int_to_time
+from utils import int_to_time
 
 
 class Driver:
@@ -10,6 +8,7 @@ class Driver:
     def __init__(self, dashboard):
         self._pb = None
         self._position = None
+        self.last_splits = None
         self.temp_theoretical = defaultdict(list)
         self.theoretical_best = None
         self._total_laps = 0
@@ -88,7 +87,7 @@ class Driver:
         self.dashboard.notify(performance_meter=value)
 
     def get_theoretical_best(self):
-        for num, split in enumerate(ac.getLastSplits(0)):
+        for num, split in enumerate(self.last_splits):
             self.temp_theoretical['S' + str(num)].append(split)
         optimum = sum([min(split_list)
                        for _, split_list in self.temp_theoretical.items()])

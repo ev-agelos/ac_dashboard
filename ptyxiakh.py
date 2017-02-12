@@ -20,8 +20,8 @@ try:
     from tyres import FL, FR, RL, RR, WINDOW_FL, WINDOW_FR, WINDOW_RL, WINDOW_RR
     from settings import (get_user_nationality, get_controller, get_racing_mode,
                           get_user_assists, get_track_temp)
-    from car_rpms import change_track_name, change_car_name
-    from convert_time import int_to_time
+    from car_rpms import change_car_name
+    from utils import int_to_time
     from dashboard import (DashBoard, FuelBar, FuelButton, GearLabel,
                            SpeedRpmButton, TimesButton, PosLapsButton,
                            SectorButton, SPEEDOMETER)
@@ -33,14 +33,7 @@ except Exception as err:
 import acsys
 
 
-APP_DIR = os.path.split(os.path.abspath(__file__))[0]
-CLIENT = os.path.join(APP_DIR, "Python33", "Client.py")
-PYTHON = os.path.join(APP_DIR, "Python33", "pythonw.exe")
-LOG_FILE = os.path.join(APP_DIR, "ACRanking.txt")
-APP_WINDOW = 0
-LOG_FILE_LAP = 0
-LOG_FILE_TRACK = ""
-LOG_FILE_CAR = ""
+APP_WINDOW = None
 STATIC_SHARED_MEMORY_IS_READ = False
 NUM_CARS = 1  # at least user's CAR
 DRIVER = Driver(DASHBOARD)
@@ -49,7 +42,7 @@ CAR = Car(DASHBOARD)
 
 def acMain(Ptyxiakh):
     """Main function that is invoked by Assetto Corsa."""
-    global APP_WINDOW, NICKNAME, TRACK
+    global APP_WINDOW
     global IMAGE_LEDS_YELLOW
     APP_WINDOW = ac.newApp("")
     ac.setSize(APP_WINDOW, 600, 170)
@@ -59,29 +52,27 @@ def acMain(Ptyxiakh):
                               SECTOR_BUTTON):
         dashboard_element.window = APP_WINDOW
 
-    check_log_file()
     DRIVER.settings.update(nationality=get_user_nationality(),
                            controller=get_controller(),
                            racing_mode=get_racing_mode(),
                            track_temp=get_track_temp())
     DRIVER.assists.update(**get_user_assists())
-    TRACK = change_track_name(ac.getTrackName(0))
-    upgrade, CAR.name = change_car_name(ac.getCarName(0))
-    DRIVER.settings.update(car_upgrade=upgrade)
-    if CAR.name == 'Formula Abarth':
+    CAR.name = ac.getCarName(0)
+    DRIVER.settings.update(car_upgrade=CAR.upgrade)
+    if CAR.name == 'tatuusfa1':
         SPEEDOMETER.f1_style = True
-    IMAGE_LEDS_YELLOW = ac.newTexture(APP_DIR + "/Images/LedsYellow.png")
+    app_dir = os.path.dirname(os.path.realpath(__file__))
+    IMAGE_LEDS_YELLOW = ac.newTexture(app_dir + "/Images/LedsYellow.png")
     ac.addRenderCallback(APP_WINDOW, onFormRender)
 
-    add_app(APP_DIR, render_info_app, DRIVER.settings['car_upgrade'])
-    NICKNAME = ac.getDriverName(0)
+    add_app(app_dir, render_info_app, DRIVER.settings['car_upgrade'])
     # FIXME should get the value from sim_info static data, 99999 is bad default
     CAR.max_rpm = get_max_rpm(ac.getCarName(0)) or 99999
 
     background = ac.addLabel(APP_WINDOW, "")
     ac.setPosition(background, 0, 0)
     ac.setSize(background, 600, 170)
-    ac.setBackgroundTexture(background, APP_DIR + "/Images/Dashboard.png")
+    ac.setBackgroundTexture(background, app_dir + "/Images/Dashboard.png")
     return "AC-Ranking"
 
 
@@ -92,12 +83,12 @@ def acUpdate(deltaT):
     completed_laps = ac.getCarState(0, acsys.CS.LapCount)
     if completed_laps > DRIVER.total_laps:
         CAR.fuel_at_start = CAR.fuel  # keep track of fuel on lap change
-
-        last_lap = sum(ac.getLastSplits(0))
+        DRIVER.last_splits = ac.getLastSplits(0)
         for window, tyre in zip((WINDOW_FL, WINDOW_FR, WINDOW_RL, WINDOW_RR),
                                 (FL, FR, RL, RR)):
             ac.setText(window.opt_label,
-                       "Opt: {}%".format(round(tyre.time_on_opt * 100 / last_lap)))
+                       "Opt: {}%".format(round(tyre.time_on_opt * 100 /
+                                               sum(DRIVER.last_splits))))
             tyre.time_on_opt = 0
             tyre.time_on_cold = 0
             tyre.time_on_hot = 0
@@ -120,7 +111,6 @@ def acUpdate(deltaT):
     switch_ecu_labels(CAR.drs, CAR.abs, CAR.tc)
     DRIVER.performance_meter = ac.getCarState(0, acsys.CS.PerformanceMeter)
     set_dashboard_labels()
-    #  check_time(DRIVER.pb)
     DASHBOARD.notify(position=dict(car_position=DRIVER.position,
                                    total_cars=NUM_CARS))
 
@@ -138,48 +128,6 @@ def set_dashboard_labels():
             CAR.rpm = 0
         elif CAR.rpm < 0:
             CAR.rpm = -CAR.rpm
-
-
-def check_time(pb):
-    global LOG_FILE_TRACK, LOG_FILE_CAR, LOG_FILE_LAP
-    splits = ac.getLastSplits(0)
-    while len(splits) < 3:
-        splits.append(0)
-
-    if LOG_FILE_TRACK == TRACK and LOG_FILE_CAR == CAR.name:
-        if LOG_FILE_LAP == 0 or LOG_FILE_LAP > pb:
-            pass
-            # Popen([PYTHON, CLIENT, NICKNAME, TRACK, CAR.name, str(pb),
-            #        str(CAR.max_speed)] + list(map(str,splits)) +
-            #        USER_ASSISTS + DRIVER.settings['nationality'] +
-            #        DRIVER.settings['controller'] +
-            #        DRIVER.settings['racing_mode']])
-    else:
-        LOG_FILE_TRACK = TRACK
-        LOG_FILE_CAR = CAR.name
-        LOG_FILE_LAP = pb
-        # Popen([PYTHON, CLIENT, NICKNAME, TRACK, CAR.name, str(pb),
-        #        str(CAR.max_speed)] + list(map(str,splits)) + USER_ASSISTS +
-        #        DRIVER.settings['nationality'] +
-        #        DRIVER.settings['controller'] +
-        #        DRIVER.settings['racing_mode'])
-
-    with open(LOG_FILE, 'w') as fob:
-        json.dump([TRACK, CAR.name, pb], fob)
-
-
-def check_log_file():
-    global LOG_FILE_TRACK, LOG_FILE_CAR, LOG_FILE_LAP
-    try:
-        with open(LOG_FILE) as fob:
-            tempdata = json.load(fob)
-            LOG_FILE_TRACK = tempdata[0]
-            LOG_FILE_CAR = tempdata[1]
-            LOG_FILE_LAP = tempdata[2]
-    except IOError:
-        tempdata = ['track', 'CAR', 0]
-        with open(LOG_FILE, 'w') as tempfile:
-            json.dump(tempdata, tempfile)
 
 
 def onFormRender(deltaT):

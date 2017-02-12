@@ -2,7 +2,7 @@
 
 from itertools import cycle
 import ac
-from convert_time import int_to_time
+from utils import int_to_time
 from ui_elements import (UIProgressBar, UILabel, UIButton, Led, RedLed, GreenLed,
                          BlueLed)
 
