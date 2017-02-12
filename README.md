@@ -3,7 +3,7 @@
 App showing car's telemetry and driver's lap times for the game Assetto Corsa
 
 ### Installation
-Download via github's download button, **rename** the folder to **ac_dashboard** and place it in Assetto corsa's app folder, example:
+Download as zip via github's download button, **rename** the folder to **ac_dashboard** and place it in Assetto corsa's app folder, example:
 
 >C:\Program Files (x86)\Steam\steamapps\common\assettocorsa\apps\python\ac_dashboard
 
