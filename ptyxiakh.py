@@ -63,8 +63,6 @@ def acMain(Ptyxiakh):
     ac.addRenderCallback(APP_WINDOW, onFormRender)
 
     add_app(app_dir, render_info_app, DRIVER.settings['car_upgrade'])
-    # FIXME should get the value from sim_info static data, 99999 is bad default
-    CAR.max_rpm = get_max_rpm(ac.getCarName(0)) or 99999
 
     background = ac.addLabel(APP_WINDOW, "")
     ac.setPosition(background, 0, 0)
