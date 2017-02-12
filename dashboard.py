@@ -3,7 +3,7 @@
 
 from utils import int_to_time
 from ui_elements import UIProgressBar, UILabel, ModesButton
-from texures import Led, RedLed, GreenLed, BlueLed, YellowLeds
+from textures import Led, RedLed, GreenLed, BlueLed, YellowLeds
 
 
 class DashBoard:
