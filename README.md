@@ -21,7 +21,7 @@ The app consists of 6 windows:
 - Position / Laps (click to change)
 - Gear indication
 - Speed / Max Speed / Digital RPM's (click to change)
-- Fuel / Last lap fuel burned / Laps left estimation depending on fuel burned (click to change)
+- Fuel / Last lap fuel consumption / Laps left estimation depending on fuel consumption (click to change)
 - Best lap time / Theoretical best lap time (click to change)
 - Sector times / Performance meter (click to change)
 
@@ -42,3 +42,5 @@ The app consists of 6 windows:
   - red(over optimum tyre temperature)
 
 ![alt text](https://github.com/ev-agelos/ac_dashboard/blob/master/app_ingame.jpg "Logo Title Text 1")
+
+**Bonus**: *When entering pits, dashboard changes to "blinking" mode with the arrows(yellow leds) blinking too where information locks(except fuel indication) until you exit the pits, showing you in blinking mode "IN PITS", your position in the track and the fuel information.*
