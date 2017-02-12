@@ -1,6 +1,6 @@
-import os
-
 import ac
+
+from itertools import cycle
 
 
 class UIElement:
@@ -136,35 +136,6 @@ class UIElement:
         ac.setVisible(self.id, 0)
 
 
-class UIButton(UIElement):
-
-    def __init__(self, listener, *args, **kwargs):
-        self.listener = listener
-        super().__init__(*args, **kwargs)
-        self.lock = False
-
-    @property
-    def window(self):
-        return self._window
-
-    @window.setter
-    def window(self, value):
-        self._window = value
-        self.id = ac.addButton(self._window, '')
-        ac.addOnClickedListener(self.id, self.listener)
-        self._draw()
-
-    def show(self):
-        """Show the text of the button instead of the actual button."""
-        self.text = self._text
-
-    def hide(self):
-        """Hide the text of the button instead of hiding the button."""
-        _text = self._text  # keep what was before setting new text
-        self.text = ''  # trigger the setter
-        self._text = _text  # save the original one
-
-
 class UILabel(UIElement):
 
     def __init__(self, *args, **kwargs):
@@ -185,6 +156,7 @@ class UIProgressBar(UIElement):
 
     def __init__(self, *args, **kwargs):
         self._range = (0, 100)
+        self._percent = None
         super().__init__(*args, **kwargs)
 
     @property
@@ -216,53 +188,47 @@ class UIProgressBar(UIElement):
         ac.setValue(self.id, value)
 
 
-class Texture:
+class UIButton(UIElement):
 
-    id = None
-    filename = ''
-    images_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                              'Images')
+    def __init__(self, listener, *args, **kwargs):
+        self.listener = listener
+        super().__init__(*args, **kwargs)
+        self.lock = False
 
-    @classmethod
-    def _load_texture(cls):
-        if cls.id is None:
-            cls.id = ac.newTexture(os.path.join(cls.images_dir, cls.filename))
+    @property
+    def window(self):
+        return self._window
 
-    @classmethod
-    def _draw_texture(cls, led):
-        ac.glQuadTextured(led.pos_x, led.pos_y, led.width, led.height, cls.id)
+    @window.setter
+    def window(self, value):
+        self._window = value
+        self.id = ac.addButton(self._window, '')
+        ac.addOnClickedListener(self.id, self.listener)
+        self._draw()
 
+    def show_text(self):
+        """Show the text of the button."""
+        self.text = self._text
 
-class Led(Texture):
-
-    pos_x = 144
-    pos_y = 40
-    width = 32
-    height = 32
-
-    def __init__(self, pos_x=144, pos_y=40, width=32, height=32):
-        self.pos_x = pos_x
-        self.pos_y = pos_y
-        self.width = width
-        self.height = height
-        super()._load_texture()
-
-    def draw(self):
-        super()._draw_texture(self)
+    def hide_text(self):
+        """Hide the text of the button."""
+        _text = self._text  # keep original text before setting new value
+        self.text = ''  # trigger the setter
+        self._text = _text  # save back the original one
 
 
-class RedLed(Led):
+class ModesButton(UIButton):
+    """Like UIButton but able to cycle between multiple modes when clicked."""
 
-    filename = 'LedRed.png'
-    pos_y = Led.pos_y + 1
+    _modes = []
+    mode = None
 
+    @property
+    def modes(self):
+        return cycle(self._modes)
 
-class GreenLed(Led):
-
-    filename = 'LedGreen.png'
-
-
-class BlueLed(Led):
-
-    filename = 'LedBlue.png'
-    pos_y = Led.pos_y + 1
+    def click(self):
+        try:
+            self.mode = next(self.modes)
+        except StopIteration:  # _modes is empty
+            self.mode = None

@@ -43,7 +43,6 @@ CAR = Car(DASHBOARD)
 def acMain(Ptyxiakh):
     """Main function that is invoked by Assetto Corsa."""
     global APP_WINDOW
-    global IMAGE_LEDS_YELLOW
     APP_WINDOW = ac.newApp("")
     ac.setSize(APP_WINDOW, 600, 170)
     ac.drawBorder(APP_WINDOW, 0)
@@ -62,7 +61,6 @@ def acMain(Ptyxiakh):
     if CAR.name == 'tatuusfa1':
         SPEEDOMETER.f1_style = True
     app_dir = os.path.dirname(os.path.realpath(__file__))
-    IMAGE_LEDS_YELLOW = ac.newTexture(app_dir + "/Images/LedsYellow.png")
     ac.addRenderCallback(APP_WINDOW, onFormRender)
 
     add_app(app_dir, render_info_app, DRIVER.settings['car_upgrade'])
@@ -94,7 +92,7 @@ def acUpdate(deltaT):
             tyre.time_on_hot = 0
 
     DRIVER.total_laps = completed_laps
-    DRIVER.current_laptime = ac.getCarState(0, acsys.CS.LapTime)
+    DRIVER.lap_time = ac.getCarState(0, acsys.CS.LapTime)
     DRIVER.pb = ac.getCarState(0, acsys.CS.BestLap)
     CAR.speed = ac.getCarState(0, acsys.CS.SpeedKMH)
     CAR.rpm = ac.getCarState(0, acsys.CS.RPM)
@@ -110,32 +108,12 @@ def acUpdate(deltaT):
     CAR.gear = ac.getCarState(0, acsys.CS.Gear)
     switch_ecu_labels(CAR.drs, CAR.abs, CAR.tc)
     DRIVER.performance_meter = ac.getCarState(0, acsys.CS.PerformanceMeter)
-    set_dashboard_labels()
     DASHBOARD.notify(position=dict(car_position=DRIVER.position,
                                    total_cars=NUM_CARS))
 
 
-def set_dashboard_labels():
-    if CAR.in_pits:
-        POS_LAPS_BUTTON.text = " P: {}/{}".format(DRIVER.position, NUM_CARS)
-        for button in (SPEED_RPM_BUTTON, POS_LAPS_BUTTON):
-            if 500 < int(str(DRIVER.current_laptime)[-3:]) < 999:
-                button.hide()
-            else:
-                button.show()
-    else:
-        if 0 < CAR.rpm < 10:
-            CAR.rpm = 0
-        elif CAR.rpm < 0:
-            CAR.rpm = -CAR.rpm
-
-
 def onFormRender(deltaT):
     ac.glColor4f(1, 1, 1, 1)  # RESET COLORS
-
-    if CAR.in_pits:
-        if 500 < int(str(DRIVER.current_laptime)[-3:]) < 999:
-            ac.glQuadTextured(129, 67, 343, 38, IMAGE_LEDS_YELLOW)
     # NOTE: call DASHBOARD here so it can include any renderings otherwise
     # AC does not render if any renderings are called outside of the function
     # that has been registered with ac.addRenderCallback

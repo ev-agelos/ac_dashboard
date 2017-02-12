@@ -73,8 +73,13 @@ class Car:
 
     @rpm.setter
     def rpm(self, value):
-        self._rpm = value
-        self.dashboard.notify(rpm=dict(current=value, max=self.max_rpm))
+        if 0 < value < 10:
+            self._rpm = 0
+        elif value < 0:
+            self._rpm = -value
+        else:
+            self._rpm = value
+        self.dashboard.notify(rpm=dict(current=self._rpm, max=self.max_rpm))
 
     @property
     def speed(self):

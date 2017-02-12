@@ -12,7 +12,7 @@ class Driver:
         self.temp_theoretical = defaultdict(list)
         self.theoretical_best = None
         self._total_laps = 0
-        self.current_laptime = 0
+        self._lap_time = 0
         self._performance_meter = None
         self._last_sector_time = None
         self._sector = None
@@ -21,6 +21,15 @@ class Driver:
         self.assists = {}
 
         self.dashboard = dashboard
+
+    @property
+    def lap_time(self):
+        return self._lap_time
+
+    @lap_time.setter
+    def lap_time(self, value):
+        self._lap_time = value
+        self.dashboard.notify(lap_time=self._lap_time)
 
     @property
     def position(self):
@@ -48,8 +57,10 @@ class Driver:
         self._last_sector_time = int_to_time(value)
 
         last_sector_index = str(self.sector - 1)
-        best_sector_time = min(self.temp_theoretical['S' + last_sector_index] or [value + 1])
-        self.dashboard.notify(last_sector=dict(time=self._last_sector_time, is_pb=value<best_sector_time))
+        best_sector_time = min(self.temp_theoretical['S' + last_sector_index] or
+                               [value + 1])
+        self.dashboard.notify(last_sector=dict(time=self._last_sector_time,
+                                               is_pb=value < best_sector_time))
 
         # save last sector time
         self.temp_theoretical['S' + last_sector_index].append(value)
@@ -92,4 +103,3 @@ class Driver:
         optimum = sum([min(split_list)
                        for _, split_list in self.temp_theoretical.items()])
         return optimum
-
