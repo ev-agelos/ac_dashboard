@@ -20,7 +20,6 @@ try:
     from tyres import FL, FR, RL, RR, WINDOW_FL, WINDOW_FR, WINDOW_RL, WINDOW_RR
     from settings import (get_user_nationality, get_controller, get_racing_mode,
                           get_user_assists, get_track_temp)
-    from car_rpms import change_car_name
     from utils import int_to_time
     from dashboard import (DashBoard, FuelBar, FuelButton, GearLabel,
                            SpeedRpmButton, TimesButton, PosLapsButton,
