@@ -108,22 +108,13 @@ class Tyre:
             self.time_on_hot += new_time
 
 
-def render_tyre_fl(deltaT):
+def render_tyres(deltaT):
     FR.compound = info.graphics.tyreCompound
     WINDOW_FL.draw_tyre_colors(FL.temp)
-
-
-def render_tyre_fr(deltaT):
     FL.compound = info.graphics.tyreCompound
     WINDOW_FR.draw_tyre_colors(FR.temp)
-
-
-def render_tyre_rl(deltaT):
     RR.compound = info.graphics.tyreCompound
     WINDOW_RL.draw_tyre_colors(RL.temp)
-
-
-def render_tyre_rr(deltaT):
     RL.compound =info.graphics.tyreCompound
     WINDOW_RR.draw_tyre_colors(RR.temp)
 
@@ -132,7 +123,7 @@ FL = Tyre()
 FR = Tyre()
 RL = Tyre()
 RR = Tyre()
-WINDOW_FL = TyreWindow("F_L", tyre=FL, render_function=render_tyre_fl)
-WINDOW_FR = TyreWindow("F_R", tyre=FR, render_function=render_tyre_fr)
-WINDOW_RL = TyreWindow("R_L", tyre=RL, render_function=render_tyre_rl)
-WINDOW_RR = TyreWindow("R_R", tyre=RR, render_function=render_tyre_rr)
+WINDOW_FL = TyreWindow("F_L", tyre=FL, render_function=render_tyres)
+WINDOW_FR = TyreWindow("F_R", tyre=FR, render_function=render_tyres)
+WINDOW_RL = TyreWindow("R_L", tyre=RL, render_function=render_tyres)
+WINDOW_RR = TyreWindow("R_R", tyre=RR, render_function=render_tyres)
