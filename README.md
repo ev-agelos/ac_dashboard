@@ -41,6 +41,6 @@ The app consists of 6 windows:
   - green(optimum tyre temperature)
   - red(over optimum tyre temperature)
 
-![alt text](https://github.com/ev-agelos/ac_dashboard/blob/master/app_ingame.jpg "Logo Title Text 1")
+![alt text](https://github.com/ev-agelos/ac_dashboard/blob/master/Images/ingame_screenshot.jpg "Application inside the game")
 
 **Bonus**: *When entering pits, dashboard changes to "blinking" mode with the arrows(yellow leds) blinking too where information locks(except fuel indication) until you exit the pits, showing you in blinking mode "IN PITS", your position in the track and the fuel information.*
