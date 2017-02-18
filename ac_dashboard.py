@@ -12,31 +12,30 @@ try:
     import json
     from collections import defaultdict
     from subprocess import Popen
-    from info_app import (add_app, switch_ecu_labels, update_ecu_labels,
-                          draw_lateral_g_force, draw_transverse_g_force)
+    from info_app import info_app
     from sim_info import info
     from car import Car
     from driver import Driver
-    from tyres import FL, FR, RL, RR, WINDOW_FL, WINDOW_FR, WINDOW_RL, WINDOW_RR
+    from tyres import (FL, FR, RL, RR, WINDOW_FL, WINDOW_FR, WINDOW_RL,
+                       WINDOW_RR)
     from settings import (get_user_nationality, get_controller, get_racing_mode,
                           get_user_assists, get_track_temp)
     from utils import int_to_time
-    from dashboard import (DashBoard, FuelBar, FuelButton, GearLabel,
+    from dashboard import (MAIN_APP_TELEMETRY, FuelBar, FuelButton, GearLabel,
                            SpeedRpmButton, TimesButton, PosLapsButton,
-                           SectorButton, SPEEDOMETER)
-    from dashboard import (DASHBOARD, FUEL_BAR, FUEL_BUTTON, GEAR_LABEL,
-                           SPEED_RPM_BUTTON, TIMES_BUTTON, POS_LAPS_BUTTON,
-                           SECTOR_BUTTON)
+                           SectorButton, SPEEDOMETER, FUEL_BAR,
+                           FUEL_BUTTON, GEAR_LABEL, SPEED_RPM_BUTTON,
+                           TIMES_BUTTON, POS_LAPS_BUTTON, SECTOR_BUTTON)
 except Exception as err:
-    ac.log("ac_dashboard " + str(err))
+    ac.log("ac_dashboard: " + str(err))
 import acsys
 
 
 APP_WINDOW = None
 STATIC_SHARED_MEMORY_IS_READ = False
 NUM_CARS = 1  # at least user's CAR
-DRIVER = Driver(DASHBOARD)
-CAR = Car(DASHBOARD)
+DRIVER = Driver(MAIN_APP_TELEMETRY)
+CAR = Car(MAIN_APP_TELEMETRY)
 
 
 def acMain(ac_version):
@@ -59,19 +58,19 @@ def acMain(ac_version):
     DRIVER.settings.update(car_upgrade=CAR.upgrade)
     if CAR.name == 'tatuusfa1':
         SPEEDOMETER.f1_style = True
-    app_dir = os.path.dirname(os.path.realpath(__file__))
-    ac.addRenderCallback(APP_WINDOW, onFormRender)
+    ac.addRenderCallback(APP_WINDOW, render_app)
 
-    add_app(app_dir, render_info_app, DRIVER.settings['car_upgrade'])
+    info_app(DRIVER.settings['car_upgrade'])
 
     background = ac.addLabel(APP_WINDOW, "")
     ac.setPosition(background, 0, 0)
     ac.setSize(background, 600, 170)
+    app_dir = os.path.dirname(os.path.realpath(__file__))
     ac.setBackgroundTexture(background, app_dir + "/Images/Dashboard.png")
     return "AC Dashboard"
 
 
-def acUpdate(deltaT):
+def acUpdate(delta_t):
     """Read data in real time from Assetto Corsa."""
     CAR.in_pits = ac.isCarInPitlane(0)
     DRIVER.position = ac.getCarRealTimeLeaderboardPosition(0)
@@ -103,30 +102,17 @@ def acUpdate(deltaT):
     read_shared_memory()
     CAR.g_forces = ac.getCarState(0, acsys.CS.AccG)
     CAR.gear = ac.getCarState(0, acsys.CS.Gear)
-    switch_ecu_labels(CAR.drs, CAR.abs, CAR.tc)
     DRIVER.performance_meter = ac.getCarState(0, acsys.CS.PerformanceMeter)
-    DASHBOARD.notify(position=dict(car_position=DRIVER.position,
+    MAIN_APP_TELEMETRY.notify(position=dict(car_position=DRIVER.position,
                                    total_cars=NUM_CARS))
 
 
-def onFormRender(deltaT):
-    ac.glColor4f(1, 1, 1, 1)  # RESET COLORS
-    # NOTE: call DASHBOARD here so it can include any renderings otherwise
+def render_app(delta_t):
+    # NOTE: call MAIN_APP_TELEMETRY here so it can include any renderings otherwise
     # AC does not render if any renderings are called outside of the function
     # that has been registered with ac.addRenderCallback
-    DASHBOARD.update()
+    MAIN_APP_TELEMETRY.update()
 
-
-def render_info_app(deltaT):
-    if CAR.g_forces[2] > 0.05:
-        draw_transverse_g_force(CAR.g_forces[0])
-    elif CAR.g_forces[2] < -0.05:
-        draw_transverse_g_force(CAR.g_forces[0], down=False)
-
-    if CAR.g_forces[0] > 0.05:
-        draw_lateral_g_force(CAR.g_forces[2])
-    elif CAR.g_forces[0] < -0.05:
-        draw_lateral_g_force(CAR.g_forces[2], right=False)
 
 
 def read_shared_memory():
@@ -142,8 +128,6 @@ def read_shared_memory():
     CAR.abs = info.physics.abs
     CAR.drs = info.physics.drs
     CAR.fuel = info.physics.fuel
-
-    update_ecu_labels(CAR, FL.compound)
 
     # Read data once after sector change
     sector_index = info.graphics.currentSectorIndex
