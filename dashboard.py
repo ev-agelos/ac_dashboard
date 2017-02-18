@@ -1,38 +1,14 @@
-"""Main dashboard that shows the car's info about speed, gears times etc."""
+"""Main dashboard."""
 
 from itertools import cycle
 
 from utils import int_to_time
 from ui_elements import UIProgressBar, UILabel, UIButton
-from textures import Led, RedLed, GreenLed, BlueLed, YellowLeds
+from textures import Texture
+from telemetry_provider import TelemetryProvider
 
 
-class DashBoard:
-
-    def __init__(self):
-        self.data_queue = []
-        self.ui_items = {}
-
-    def notify(self, **data):
-        """Add to the data list the data that got received(key=value)."""
-        for telemetry, value in data.items():
-            self.data_queue.append({telemetry: value})
-
-    def subscribe(self, telemetry, element):
-        """Add the ui element to the telemetry's list."""
-        self.ui_items.setdefault(telemetry, []).append(element)
-
-    def unsubscribe(self, telemetry, element):
-        """Remove the ui element from the telemetry's list."""
-        self.ui_items[telemetry].remove(element)
-
-    def update(self):
-        """Update every ui element depending on it's telemetry subscriptions."""
-        for data in self.data_queue:
-            (telemetry, value), = data.items()
-            for ui_item in self.ui_items.get(telemetry, []):
-                ui_item.run(telemetry, value)
-        self.data_queue = []
+MAIN_APP_TELEMETRY = TelemetryProvider()
 
 
 class DashboardButton(UIButton):
@@ -57,14 +33,21 @@ class Speedometer:
             self.dashboard.subscribe(telemetry, self)
         self.f1_style = False
         self.leds = {
-            'green': [GreenLed(pos_x=Led.pos_x + (number*20))
+            'green': [Texture(pos_x=144 + (number*20), pos_y=41, width=32,
+                              height=32, color=(1, 1, 1, 1),
+                              filename='LedGreen.png')
                       for number in range(5)],
-            'red':  [RedLed(pos_x=Led.pos_x + (number*20))
+            'red':  [Texture(pos_x=144 + (number*20), pos_y=41, width=32,
+                             height=32, color=(1, 1, 1, 1),
+                             filename='LedRed.png')
                      for number in range(5, 10)],
-            'blue': [BlueLed(pos_x=Led.pos_x + (number*20))
+            'blue': [Texture(pos_x=144 + (number*20), pos_y=41, width=32,
+                             height=32, color=(1, 1, 1, 1),
+                             filename='LedBlue.png')
                      for number in range(10, 15)]
         }
-        self.pit_leds = YellowLeds()
+        self.pit_leds = Texture(pos_x=129, pos_y=67, width=343, height=38,
+                                color=(1, 1, 1, 1), filename='LedsYellow.png')
         self.leds_counter = len([led for group in self.leds.values()
                                  for led in group])
         self.lock = False
@@ -321,12 +304,12 @@ def pos_laps_click(x, y):
         POS_LAPS_BUTTON.click()
 
 
-DASHBOARD = DashBoard()
-FUEL_BAR = FuelBar(DASHBOARD)
-FUEL_BUTTON = FuelButton(DASHBOARD)
-GEAR_LABEL = GearLabel(DASHBOARD)
-SPEED_RPM_BUTTON = SpeedRpmButton(DASHBOARD)
-TIMES_BUTTON = TimesButton(DASHBOARD)
-POS_LAPS_BUTTON = PosLapsButton(DASHBOARD)
-SECTOR_BUTTON = SectorButton(DASHBOARD)
-SPEEDOMETER = Speedometer(DASHBOARD)
+
+FUEL_BAR = FuelBar(MAIN_APP_TELEMETRY)
+FUEL_BUTTON = FuelButton(MAIN_APP_TELEMETRY)
+GEAR_LABEL = GearLabel(MAIN_APP_TELEMETRY)
+SPEED_RPM_BUTTON = SpeedRpmButton(MAIN_APP_TELEMETRY)
+TIMES_BUTTON = TimesButton(MAIN_APP_TELEMETRY)
+POS_LAPS_BUTTON = PosLapsButton(MAIN_APP_TELEMETRY)
+SECTOR_BUTTON = SectorButton(MAIN_APP_TELEMETRY)
+SPEEDOMETER = Speedometer(MAIN_APP_TELEMETRY)
