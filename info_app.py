@@ -2,110 +2,223 @@ import os
 
 import ac
 
-from tyres import get_compound_temps
+from ui_elements import UILabel
+from textures import Texture
+from telemetry_provider import TelemetryProvider
 
 
-ELECTRONIC_LABELS = {
-    35: {'label_no': None, 'pos': (50, 35)},
-    36: {'label_no': None, 'pos': (10, 55)},
-    37: {'label_no': None, 'pos': (35, 120)},
-    38: {'label_no': None, 'pos': (35, 150)}
-}
-G_FORCES_LABELS = {
-    39: {'label_no': None, 'pos': (133, 119)},
-    40: {'label_no': None, 'pos': (103, 145)}
-}
-ECU_LABELS = {
-    41: {'label_no': None, 'pos': (400, 7)},
-    42: {'label_no': None, 'pos': (3, 114)},
-    43: {'label_no': None, 'pos': (3, 144)}
-}
-IMAGE_ARROW_DOWN = None
-IMAGE_ARROW_UP = None
-IMAGE_ARROW_LEFT = None
-IMAGE_ARROW_RIGHT = None
+APP_DIR = os.path.dirname(os.path.realpath(__file__))
+CAR_INFO_APP_TELEMETRY = TelemetryProvider()
 
 
-def add_app(app_dir, render_function, car_upgrade):
+class CompoundLabel(UILabel):
+
+    def __init__(self, dashboard):
+        super().__init__(pos=(70, 35), bg_opacity=0)
+        self.dashboard = dashboard
+        self.dashboard.subscribe('compound', self)
+
+    def run(self, telemetry, value):
+        self.text = value or ''
+
+
+class OptimumTempsLabel(UILabel):
+
+    def __init__(self, dashboard):
+        super().__init__(pos=(5, 57), size=(100, 20), bg_opacity=0,
+                         text_align='left')
+        self.dashboard = dashboard
+        self.dashboard.subscribe('optimum_temps', self)
+
+    def run(self, telemetry, value):
+        value = "{}-{}C".format(*value) if value != (0, 0) else 'unknown!'
+        self.text = "Optimum Temps: {}".format(value)
+
+
+class ABSLabel(UILabel):
+
+    def __init__(self, dashboard):
+        super().__init__(pos=(35, 120), bg_opacity=0)
+        self.dashboard = dashboard
+        self.dashboard.subscribe('abs', self)
+
+    def run(self, telemetry, value):
+        if len(value['levels']) > 2:
+            self.text = '{}/{}'.format(value['level'], len(value['levels']))
+        else:
+            self.text = ''
+
+
+class TractionControlLabel(UILabel):
+
+    def __init__(self, dashboard):
+        super().__init__(pos=(35, 150), bg_opacity=0)
+        self.dashboard = dashboard
+        self.dashboard.subscribe('traction_control', self)
+
+    def run(self, telemetry, value):
+        if len(value['levels']) > 2:
+            self.text = '{}/{}'.format(value['level'], len(value['levels']))
+        else:
+            self.text = ''
+
+
+class LateralForceLabel(UILabel):
+
+    def __init__(self, dashboard):
+        super().__init__(pos=(103, 145), bg_opacity=0)
+        self.dashboard = dashboard
+        self.dashboard.subscribe('lateral_force', self)
+
+    def run(self, telemetry, value):
+        self.text = "{}".format(abs(round(value, 1)))
+
+
+class TransverseForceLabel(UILabel):
+
+    def __init__(self, dashboard):
+        super().__init__(pos=(133, 119), bg_opacity=0)
+        self.dashboard = dashboard
+        self.dashboard.subscribe('transverse_force', self)
+
+    def run(self, telemetry, value):
+        self.text = "{}".format(abs(round(value, 1)))
+
+
+class DRSImageLabel(UILabel):
+
+    def __init__(self, dashboard):
+        super().__init__(pos=(400, 7), size=(30, 30), visible=0, bg_opacity=0,
+                         bg_texture=APP_DIR+"/Images/on.png")
+        self.dashboard = dashboard
+        self.dashboard.subscribe('drs', self)
+
+    def run(self, telemetry, value):
+        self.visible = int(bool(value))
+
+
+class ABSImageLabel(UILabel):
+
+    def __init__(self, dashboard):
+        super().__init__(pos=(3, 114), size=(30, 30), visible=0, bg_opacity=0,
+                         bg_texture=APP_DIR+"/Images/on.png")
+        self.dashboard = dashboard
+        self.dashboard.subscribe('abs', self)
+
+    def run(self, telemetry, value):
+        self.visible = int(bool(value['value']))
+
+
+class TCImageLabel(UILabel):
+
+    def __init__(self, dashboard):
+        super().__init__(pos=(3, 144), size=(30, 30), visible=0, bg_opacity=0,
+                         bg_texture=APP_DIR+"/Images/on.png")
+        self.dashboard = dashboard
+        self.dashboard.subscribe('traction_control', self)
+
+    def run(self, telemetry, value):
+        self.visible = int(bool(value['value']))
+
+
+class BackgroundLabel(UILabel):
+
+    def __init__(self):
+        super().__init__(pos=(0, 0), size=(161, 205), bg_opacity=0)
+
+
+class RightLateralForceImage(Texture):
+
+    def __init__(self, dashboard, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.dashboard = dashboard
+        self.dashboard.subscribe('lateral_force', self)
+
+    def run(self, telemetry, value):
+        if value > 0.05:
+            self.draw()
+
+
+class LeftLateralForceImage(Texture):
+
+    def __init__(self, dashboard, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.dashboard = dashboard
+        self.dashboard.subscribe('lateral_force', self)
+
+    def run(self, telemetry, value):
+        if value < -0.05:
+            self.draw()
+
+
+class PositiveTransverseForceImage(Texture):
+
+    def __init__(self, dashboard, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.dashboard = dashboard
+        self.dashboard.subscribe('transverse_force', self)
+
+    def run(self, telemetry, value):
+        if value < -0.05:
+            self.draw()
+
+
+class NegativeTransverseForceImage(Texture):
+
+    def __init__(self, dashboard, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.dashboard = dashboard
+        self.dashboard.subscribe('transverse_force', self)
+
+    def run(self, telemetry, value):
+        if value > 0.05:
+            self.draw()
+
+
+def info_app(car_upgrade):
     """Add the info window/app."""
-    global IMAGE_ARROW_DOWN, IMAGE_ARROW_UP, IMAGE_ARROW_LEFT, IMAGE_ARROW_RIGHT
     window_info = ac.newApp("Info")
     ac.setSize(window_info, 160, 205)
-    ac.addRenderCallback(window_info, render_function)
+    ac.addRenderCallback(window_info, render_app)
 
-    for label, data in ELECTRONIC_LABELS.items():
-        data['label_no'] = ac.addLabel(window_info, '')
-        ac.setFontSize(data['label_no'], 12)
+    compound_label = CompoundLabel(CAR_INFO_APP_TELEMETRY)
+    optimum_temps_label = OptimumTempsLabel(CAR_INFO_APP_TELEMETRY)
+    abs_label = ABSLabel(CAR_INFO_APP_TELEMETRY)
+    tc_label = TractionControlLabel(CAR_INFO_APP_TELEMETRY)
 
-    for label, data in G_FORCES_LABELS.items():
-        data['label_no'] = ac.addLabel(window_info, "")
+    lateral_force_label = LateralForceLabel(CAR_INFO_APP_TELEMETRY)
+    transverse_force_label = TransverseForceLabel(CAR_INFO_APP_TELEMETRY)
 
-    for label, data in ECU_LABELS.items():
-        data['label_no'] = ac.addLabel(window_info, "")
-        ac.setSize(data['label_no'], 30, 30)
-        ac.setBackgroundTexture(data['label_no'], app_dir + "/Images/on.png")
-        ac.setVisible(data['label_no'], 0)
+    drs_image_label = DRSImageLabel(CAR_INFO_APP_TELEMETRY)
+    abs_image_label = ABSImageLabel(CAR_INFO_APP_TELEMETRY)
+    tc_image_label = TCImageLabel(CAR_INFO_APP_TELEMETRY)
 
-    for dict_ in (ELECTRONIC_LABELS, G_FORCES_LABELS, ECU_LABELS):
-        for _, data in dict_.items():
-            ac.setPosition(data['label_no'], data['pos'][0], data['pos'][1])
+    background_label = BackgroundLabel()
 
-    IMAGE_ARROW_DOWN = ac.newTexture(app_dir + "/Images/arrowDown.png")
-    IMAGE_ARROW_UP = ac.newTexture(app_dir + "/Images/arrowUp.png")
-    IMAGE_ARROW_RIGHT = ac.newTexture(app_dir + "/Images/arrowRight.png")
-    IMAGE_ARROW_LEFT = ac.newTexture(app_dir + "/Images/arrowLeft.png")
+    for label in (compound_label, optimum_temps_label, abs_label, tc_label,
+                  lateral_force_label, transverse_force_label, drs_image_label,
+                  abs_image_label, tc_image_label, background_label):
+        label.window = window_info
 
     # Prepei na mpei teleytaio gia na fortwnei meta to prasino eikonidio gia na
     # kratietai to diafano...
-    background = ac.addLabel(window_info, "")
-    ac.setPosition(background, 0, 0)
-    ac.setSize(background, 161, 205)
     car_upgrade_img_path = os.path.join(
-        app_dir, "/Images/Info{}.png".format(car_upgrade))
-    ac.setBackgroundTexture(background, car_upgrade_img_path)
+        APP_DIR, "Images/Info{}.png".format(car_upgrade or 'STD'))
+    background_label.bg_texture = car_upgrade_img_path
+
+    image_arrow_left = LeftLateralForceImage(
+        CAR_INFO_APP_TELEMETRY, pos_x=131, pos_y=147, width=20, height=20,
+        color=(1, 1, 0, 1), filename='arrowLeft.png')
+    image_arrow_right = RightLateralForceImage(
+        CAR_INFO_APP_TELEMETRY, pos_x=132, pos_y=147, width=20, height=20,
+        color=(1, 1, 0, 1), filename='arrowRight.png')
+    image_arrow_up = PositiveTransverseForceImage(
+        CAR_INFO_APP_TELEMETRY, pos_x=104, pos_y=119, width=20, height=20,
+        color=(1, 1, 0, 1), filename='arrowUp.png')
+    image_arrow_down = NegativeTransverseForceImage(
+        CAR_INFO_APP_TELEMETRY, pos_x=104, pos_y=120, width=20, height=20,
+        color=(1, 1, 0, 1), filename='arrowDown.png')
 
 
-def draw_lateral_g_force(force, right=True):
-    ac.glColor3f(1, 1, 0)
-    if right:
-        ac.glQuadTextured(132, 147, 20, 20, IMAGE_ARROW_RIGHT)
-    else:
-        ac.glQuadTextured(130, 148, 20, 20, IMAGE_ARROW_LEFT)
-    ac.setText(G_FORCES_LABELS[39]['label_no'],
-               "{0}".format(abs(round(force, 1))))
-
-
-def draw_transverse_g_force(force, down=True):
-    ac.glColor3f(1, 1, 0)
-    if down:
-        ac.glQuadTextured(104, 119, 20, 20, IMAGE_ARROW_DOWN)
-    else:
-        ac.glQuadTextured(104, 119, 20, 20, IMAGE_ARROW_UP)
-    ac.setText(G_FORCES_LABELS[40]['label_no'],
-               "{0}".format(abs(round(force, 1))))
-
-
-def switch_ecu_labels(drs, abs_, tc):
-    ac.setVisible(ECU_LABELS[41]['label_no'], 1 if drs else 0)
-    ac.setVisible(ECU_LABELS[42]['label_no'], 1 if abs_ else 0)
-    ac.setVisible(ECU_LABELS[43]['label_no'], 1 if tc else 0)
-
-
-def update_ecu_labels(car, compound):
-    """Update the values of the ecu labels."""
-    tc_text = ''
-    if len(car.tc_levels) > 2:
-        tc_text = '{}/{}'.format(car.tc_level, len(car.tc_levels))
-    ac.setText(ELECTRONIC_LABELS[38]['label_no'], tc_text)
-
-    abs_text = ''
-    if len(car.abs_levels) > 2:
-        abs_text = '{}/{}'.format(car.abs_level, len(car.abs_levels))
-    ac.setText(ELECTRONIC_LABELS[37]['label_no'], abs_text)
-
-    # TODO: this should be a property for Car() and should be set when
-    # .tyre_compound is set(once)
-    ac.setText(ELECTRONIC_LABELS[35]['label_no'], compound or '')
-    min_temp, max_temp = get_compound_temps(car.name, compound or '')
-    ac.setText(ELECTRONIC_LABELS[36]['label_no'],
-               "Optimum Temps: {}-{}C".format(min_temp, max_temp))
+def render_app(delta_t):
+    CAR_INFO_APP_TELEMETRY.update()
