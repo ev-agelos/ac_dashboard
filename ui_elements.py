@@ -13,7 +13,8 @@ class UIElement:
 
     def __init__(self, text='', text_align='center', size=(20, 20), pos=(0, 0),
                  font_color=(1, 1, 1, 1), font_size=12, bg_color=(1, 1, 1),
-                 draw_bg=1, bg_opacity=0.6, draw_border=0):
+                 draw_bg=1, bg_opacity=0.6, bg_texture='', draw_border=0,
+                 visible=1):
         self.id = None
         self._window = None
         self._text = text
@@ -25,7 +26,28 @@ class UIElement:
         self._bg_color = bg_color
         self._draw_bg = draw_bg  # 0 (transparent) or 1 (not trasparent)
         self._bg_opacity = bg_opacity  # alpha channel 0 <= float <= 1
+        self._bg_texture = bg_texture
         self._draw_border = draw_border
+        self._visible = visible
+
+    @property
+    def bg_texture(self):
+        return self._bg_texture
+
+    @bg_texture.setter
+    def bg_texture(self, value):
+        self._bg_texture = value
+        if value:
+            ac.setBackgroundTexture(self.id, self._bg_texture)
+
+    @property
+    def visible(self):
+        return self._visible
+
+    @visible.setter
+    def visible(self, value):
+        self._visible = value
+        ac.setVisible(self.id, self._visible)
 
     @property
     def text(self):
