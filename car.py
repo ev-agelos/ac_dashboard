@@ -18,7 +18,7 @@ class Car:
         self.max_rpm = 0
         self._speed = 0
         self.max_speed = 0
-        self.g_forces = (0, 0)
+        self._g_forces = (0, 0, 0)
         self._gear = 0
         self._fuel = None
         self.max_fuel = None
@@ -33,6 +33,16 @@ class Car:
         self._in_pits = None
 
         self.dashboard = dashboard
+
+    @property
+    def g_forces(self):
+        return self._g_forces
+
+    @g_forces.setter
+    def g_forces(self, value):
+        self._g_forces = value
+        self.dashboard.notify(lateral_force=self._g_forces[0],
+                              transverse_force=self._g_forces[2])
 
     @property
     def name(self):
@@ -115,7 +125,8 @@ class Car:
             #        .format(round(value, 2), self.name))
             self.tc_level = 0
 
-        self.dashboard.notify(tc=value)
+        self.dashboard.notify(traction_control=dict(
+            value=value, level=self.tc_level, levels=self.tc_levels))
 
     @property
     def abs(self):
@@ -138,7 +149,8 @@ class Car:
             #        .format(round(value, 2), self.name))
             self.abs_level = 0
 
-        self.dashboard.notify(abs=value)
+        self.dashboard.notify(abs=dict(
+            value=value, level=self.abs_level, levels=self.abs_levels))
 
     @property
     def fuel(self):
