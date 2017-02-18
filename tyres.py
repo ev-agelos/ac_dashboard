@@ -2,6 +2,7 @@ import ac
 import acsys
 
 from sim_info import info
+from dashboard import MAIN_APP_TELEMETRY
 
 
 TYRE_COMPS = {
@@ -73,13 +74,15 @@ def get_compound_temps(car_name, compound):
 
 class Tyre:
 
-    def __init__(self):
+    def __init__(self, dashboard):
         self._compound = None
         self.low_opt = 0
         self.high_opt = 0
         self.time_on_cold = 0
         self.time_on_opt = 0
         self.time_on_hot = 0
+
+        self.dashboard = dashboard
 
     @property
     def compound(self):
@@ -88,7 +91,9 @@ class Tyre:
     @compound.setter
     def compound(self, value):
         self._compound = value
-        self.low_opt, self.high_opt = TYRE_COMPS.get(self.compound, (0, 0))
+        self.low_opt, self.high_opt = TYRE_COMPS.get(self._compound, (0, 0))
+        self.dashboard.notify(compound=self._compound,
+                              optimum_temps=(self.low_opt, self.high_opt))
 
     @property
     def temp(self):
@@ -119,10 +124,10 @@ def render_tyres(deltaT):
     WINDOW_RR.draw_tyre_colors(RR.temp)
 
 
-FL = Tyre()
-FR = Tyre()
-RL = Tyre()
-RR = Tyre()
+FL = Tyre(MAIN_APP_TELEMETRY)
+FR = Tyre(MAIN_APP_TELEMETRY)
+RL = Tyre(MAIN_APP_TELEMETRY)
+RR = Tyre(MAIN_APP_TELEMETRY)
 WINDOW_FL = TyreWindow("F_L", tyre=FL, render_function=render_tyres)
 WINDOW_FR = TyreWindow("F_R", tyre=FR, render_function=render_tyres)
 WINDOW_RL = TyreWindow("R_L", tyre=RL, render_function=render_tyres)
