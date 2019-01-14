@@ -42,10 +42,7 @@ class ABSLabel(UILabel):
         self.dashboard.subscribe('abs', self)
 
     def run(self, telemetry, value):
-        if len(value['levels']) > 2:
-            self.text = '{}/{}'.format(value['level'], len(value['levels']))
-        else:
-            self.text = ''
+        self.text = str(round(value['value'], 2))
 
 
 class TractionControlLabel(UILabel):
@@ -56,10 +53,7 @@ class TractionControlLabel(UILabel):
         self.dashboard.subscribe('traction_control', self)
 
     def run(self, telemetry, value):
-        if len(value['levels']) > 2:
-            self.text = '{}/{}'.format(value['level'], len(value['levels']))
-        else:
-            self.text = ''
+        self.text = str(round(value['value'], 2))
 
 
 class LateralForceLabel(UILabel):

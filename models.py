@@ -1,18 +1,9 @@
 """Car related information."""
 
 
-import json
-import os
 from collections import defaultdict
 
 from utils import int_to_time
-
-
-def get_car_electronics(car):
-    app_dir = os.path.dirname(os.path.realpath(__file__))
-    with open(app_dir + '\electronics.json') as fob:
-        data = json.load(fob)
-    return data.get(car, {})
 
 
 class TelemetryProvider:
@@ -69,12 +60,9 @@ class Car:
         self.burned_fuel = 0
         self.est_fuel_laps = None
         self._tc = 0.0
-        self.tc_level = None
         self._abs = 0.0
-        self.abs_level = None
         self.drs = 0
         self._in_pits = None
-        self.electronics = {}
 
         self.dashboard = dashboard
 
@@ -97,7 +85,6 @@ class Car:
         self._name = value
         if value.endswith(('_s1', '_s2', '_s3', '_drift', '_dtm')):
             self.upgrade = value.split('_')[-1]
-        self.electronics = get_car_electronics(value)
 
     @property
     def in_pits(self):
@@ -158,20 +145,7 @@ class Car:
     def tc(self, value):
         """Set the raw traction control value and map it to a level."""
         self._tc = value
-        if not self.tc_levels:
-            self.tc_levels = self.electronics.get('tc')
-            # no data for the CAR or has not any tc values
-            if self.tc_levels is None:
-                self.tc_levels = (0, )
-        try:
-            self.tc_level = self.tc_levels.index(round(value, 2))
-        except ValueError:
-            # ac.log("Ptyxiakh: Unknown TC value {} for car {}"
-            #        .format(round(value, 2), self.name))
-            self.tc_level = 0
-
-        self.dashboard.notify(traction_control=dict(
-            value=value, level=self.tc_level, levels=self.tc_levels))
+        self.dashboard.notify(traction_control=dict(value=value))
 
     @property
     def abs(self):
@@ -182,20 +156,7 @@ class Car:
     def abs(self, value):
         """Set the raw abs value and map it to a level."""
         self._abs = value
-        if not self.abs_levels:
-            self.abs_levels = self.electronics.get('abs')
-            # unknown CAR or has not any abs values
-            if self.abs_levels is None:
-                self.abs_levels = (0, )
-        try:
-            self.abs_level = self.abs_levels.index(round(value, 2))
-        except ValueError:
-            # ac.log("Ptyxiakh: Unknown ABS value {} for car {}"
-            #        .format(round(value, 2), self.name))
-            self.abs_level = 0
-
-        self.dashboard.notify(abs=dict(
-            value=value, level=self.abs_level, levels=self.abs_levels))
+        self.dashboard.notify(abs=dict(value=value))
 
     @property
     def fuel(self):
