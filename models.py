@@ -1,10 +1,16 @@
 """Car related information."""
 
 
-from collections import defaultdict
+import json
 
+from collections import defaultdict
 from utils import int_to_time
-from electronics import CAR_DATA
+
+
+def get_car_electronics(car):
+    with open('electronics.json') as fob:
+        data = json.load(fob)
+    return data.get(car, {})
 
 
 class TelemetryProvider:
@@ -66,6 +72,7 @@ class Car:
         self.abs_level = None
         self.drs = 0
         self._in_pits = None
+        self.electronics = {}
 
         self.dashboard = dashboard
 
@@ -88,6 +95,7 @@ class Car:
         self._name = value
         if value.endswith(('_s1', '_s2', '_s3', '_drift', '_dtm')):
             self.upgrade = value.split('_')[-1]
+        self.electronics = get_car_electronics(value)
 
     @property
     def in_pits(self):
@@ -149,7 +157,7 @@ class Car:
         """Set the raw traction control value and map it to a level."""
         self._tc = value
         if not self.tc_levels:
-            self.tc_levels = CAR_DATA.get(self.name, {}).get('tc')
+            self.tc_levels = self.electronics.get('tc')
             # no data for the CAR or has not any tc values
             if self.tc_levels is None:
                 self.tc_levels = (0, )
@@ -173,7 +181,7 @@ class Car:
         """Set the raw abs value and map it to a level."""
         self._abs = value
         if not self.abs_levels:
-            self.abs_levels = CAR_DATA.get(self.name, {}).get('abs')
+            self.abs_levels = self.electronics.get('abs')
             # unknown CAR or has not any abs values
             if self.abs_levels is None:
                 self.abs_levels = (0, )
