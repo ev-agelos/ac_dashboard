@@ -19,7 +19,6 @@ except Exception as err:
 import acsys
 
 
-APP_WINDOW = None
 READ_STATIC_SHARED_MEMORY_ONCE = False
 NUM_CARS = 1  # at least user's CAR
 MAIN_APP_TELEMETRY = TelemetryProvider()
@@ -29,21 +28,20 @@ CAR = Car(MAIN_APP_TELEMETRY)
 
 def acMain(ac_version):
     """Main function that is invoked by Assetto Corsa."""
-    global APP_WINDOW
-    APP_WINDOW = ac.newApp("")
-    ac.setSize(APP_WINDOW, 600, 170)
-    ac.drawBorder(APP_WINDOW, 0)
+    app_window = ac.newApp("")
+    ac.setSize(app_window, 600, 170)
+    ac.drawBorder(app_window, 0)
 
     CAR.name = ac.getCarName(0)
-    dashboard_elements.init(MAIN_APP_TELEMETRY, APP_WINDOW, CAR.name)
+    dashboard_elements.init(MAIN_APP_TELEMETRY, app_window, CAR.name)
 
     tyre_apps.init(MAIN_APP_TELEMETRY)
 
-    ac.addRenderCallback(APP_WINDOW, render_app)
+    ac.addRenderCallback(app_window, render_app)
 
     info_app.init()
 
-    background = ac.addLabel(APP_WINDOW, "")
+    background = ac.addLabel(app_window, "")
     ac.setPosition(background, 0, 0)
     ac.setSize(background, 600, 170)
     app_dir = os.path.dirname(os.path.realpath(__file__))
