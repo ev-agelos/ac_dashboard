@@ -15,9 +15,7 @@ try:
     from driver import Driver
     from tyres import (FL, FR, RL, RR, WINDOW_FL, WINDOW_FR, WINDOW_RL,
                        WINDOW_RR)
-    from settings import (get_user_nationality, get_controller,
-                          get_racing_mode,
-                          get_user_assists, get_track_temp)
+    from settings import get_user_assists
     from dashboard import (MAIN_APP_TELEMETRY, SPEEDOMETER, FUEL_BAR,
                            FUEL_BUTTON, GEAR_LABEL, SPEED_RPM_BUTTON,
                            TIMES_BUTTON, POS_LAPS_BUTTON, SECTOR_BUTTON)
@@ -44,10 +42,6 @@ def acMain(ac_version):
                               SECTOR_BUTTON):
         dashboard_element.window = APP_WINDOW
 
-    DRIVER.settings.update(nationality=get_user_nationality(),
-                           controller=get_controller(),
-                           racing_mode=get_racing_mode(),
-                           track_temp=get_track_temp())
     DRIVER.assists.update(**get_user_assists())
     CAR.name = ac.getCarName(0)
     DRIVER.settings.update(car_upgrade=CAR.upgrade)

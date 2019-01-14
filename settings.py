@@ -13,33 +13,6 @@ def _read_config_settings(filename):
     return config
 
 
-def get_track_temp():
-    """Return track ambient temp defined inside the game."""
-    config = _read_config_settings('race.ini')
-    return float(config['TEMPERATURE']['AMBIENT'])
-
-
-def get_user_nationality():
-    """Return user's nationality defined inside the game."""
-    config = _read_config_settings('race.ini')
-    return config['CAR_0']['NATIONALITY']
-
-
-def get_controller():
-    """Return user control input defined inside the game."""
-    config = _read_config_settings('controls.ini')
-    return config['HEADER']['INPUT_METHOD']
-
-
-def get_racing_mode():
-    """Return racing mode defined inside the game."""
-    config = _read_config_settings('launcher.ini')
-    mode = config['SAVED']['DRIVE']
-    modes = {'specialevents': 'Special Event', 'timeattack': 'Time Attack'}
-    racing_mode = modes.get(mode) or mode.capitalize()
-    return racing_mode
-
-
 def get_user_assists():
     """Return the assists user set inside the game."""
     config = _read_config_settings('assists.ini')
