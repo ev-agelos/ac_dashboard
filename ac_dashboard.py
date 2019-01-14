@@ -15,7 +15,6 @@ try:
     from driver import Driver
     from tyres import (FL, FR, RL, RR, WINDOW_FL, WINDOW_FR, WINDOW_RL,
                        WINDOW_RR)
-    from settings import get_user_assists
     from dashboard import (MAIN_APP_TELEMETRY, SPEEDOMETER, FUEL_BAR,
                            FUEL_BUTTON, GEAR_LABEL, SPEED_RPM_BUTTON,
                            TIMES_BUTTON, POS_LAPS_BUTTON, SECTOR_BUTTON)
@@ -42,7 +41,6 @@ def acMain(ac_version):
                               SECTOR_BUTTON):
         dashboard_element.window = APP_WINDOW
 
-    DRIVER.assists.update(**get_user_assists())
     CAR.name = ac.getCarName(0)
     if CAR.name == 'tatuusfa1':
         SPEEDOMETER.f1_style = True

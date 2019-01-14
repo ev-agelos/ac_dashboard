@@ -18,7 +18,6 @@ class Driver:
         self._sector = None
         self.laps_counter = 0
         self.settings = {}
-        self.assists = {}
 
         self.dashboard = dashboard
 
