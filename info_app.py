@@ -8,7 +8,6 @@ from telemetry_provider import TelemetryProvider
 
 
 APP_DIR = os.path.dirname(os.path.realpath(__file__))
-CAR_INFO_APP_TELEMETRY = TelemetryProvider()
 
 
 class CompoundLabel(UILabel):
@@ -177,21 +176,23 @@ class NegativeTransverseForceImage(Texture):
 
 def info_app():
     """Add the info window/app."""
+    global info_telemetry
     window_info = ac.newApp("Info")
     ac.setSize(window_info, 160, 205)
     ac.addRenderCallback(window_info, render_app)
 
-    compound_label = CompoundLabel(CAR_INFO_APP_TELEMETRY)
-    optimum_temps_label = OptimumTempsLabel(CAR_INFO_APP_TELEMETRY)
-    abs_label = ABSLabel(CAR_INFO_APP_TELEMETRY)
-    tc_label = TractionControlLabel(CAR_INFO_APP_TELEMETRY)
+    info_telemetry = TelemetryProvider()
+    compound_label = CompoundLabel(info_telemetry)
+    optimum_temps_label = OptimumTempsLabel(info_telemetry)
+    abs_label = ABSLabel(info_telemetry)
+    tc_label = TractionControlLabel(info_telemetry)
 
-    lateral_force_label = LateralForceLabel(CAR_INFO_APP_TELEMETRY)
-    transverse_force_label = TransverseForceLabel(CAR_INFO_APP_TELEMETRY)
+    lateral_force_label = LateralForceLabel(info_telemetry)
+    transverse_force_label = TransverseForceLabel(info_telemetry)
 
-    drs_image_label = DRSImageLabel(CAR_INFO_APP_TELEMETRY)
-    abs_image_label = ABSImageLabel(CAR_INFO_APP_TELEMETRY)
-    tc_image_label = TCImageLabel(CAR_INFO_APP_TELEMETRY)
+    drs_image_label = DRSImageLabel(info_telemetry)
+    abs_image_label = ABSImageLabel(info_telemetry)
+    tc_image_label = TCImageLabel(info_telemetry)
 
     background_label = BackgroundLabel()
 
@@ -211,18 +212,18 @@ def info_app():
     background_label.bg_texture = car_upgrade_img_path
 
     image_arrow_left = LeftLateralForceImage(
-        CAR_INFO_APP_TELEMETRY, pos_x=131, pos_y=147, width=20, height=20,
+        info_telemetry, pos_x=131, pos_y=147, width=20, height=20,
         color=(1, 1, 0, 1), filename='arrowLeft.png')
     image_arrow_right = RightLateralForceImage(
-        CAR_INFO_APP_TELEMETRY, pos_x=132, pos_y=147, width=20, height=20,
+        info_telemetry, pos_x=132, pos_y=147, width=20, height=20,
         color=(1, 1, 0, 1), filename='arrowRight.png')
     image_arrow_up = PositiveTransverseForceImage(
-        CAR_INFO_APP_TELEMETRY, pos_x=104, pos_y=119, width=20, height=20,
+        info_telemetry, pos_x=104, pos_y=119, width=20, height=20,
         color=(1, 1, 0, 1), filename='arrowUp.png')
     image_arrow_down = NegativeTransverseForceImage(
-        CAR_INFO_APP_TELEMETRY, pos_x=104, pos_y=120, width=20, height=20,
+        info_telemetry, pos_x=104, pos_y=120, width=20, height=20,
         color=(1, 1, 0, 1), filename='arrowDown.png')
 
 
 def render_app(delta_t):
-    CAR_INFO_APP_TELEMETRY.update()
+    info_telemetry.update()
