@@ -175,7 +175,7 @@ class NegativeTransverseForceImage(Texture):
             self.draw()
 
 
-def info_app(car_upgrade):
+def info_app():
     """Add the info window/app."""
     window_info = ac.newApp("Info")
     ac.setSize(window_info, 160, 205)
@@ -202,6 +202,10 @@ def info_app(car_upgrade):
 
     # Prepei na mpei teleytaio gia na fortwnei meta to prasino eikonidio gia na
     # kratietai to diafano...
+    car_name = ac.getCarName(0)
+    car_upgrade = ''
+    if car_name.endswith(('_s1', '_s2', '_s3', '_drift', '_dtm')):
+        car_upgrade = car_name.split('_')[-1]
     car_upgrade_img_path = os.path.join(
         APP_DIR, "Images/Info{}.png".format(car_upgrade or 'STD'))
     background_label.bg_texture = car_upgrade_img_path

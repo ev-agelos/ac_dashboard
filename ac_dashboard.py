@@ -44,12 +44,11 @@ def acMain(ac_version):
 
     DRIVER.assists.update(**get_user_assists())
     CAR.name = ac.getCarName(0)
-    DRIVER.settings.update(car_upgrade=CAR.upgrade)
     if CAR.name == 'tatuusfa1':
         SPEEDOMETER.f1_style = True
     ac.addRenderCallback(APP_WINDOW, render_app)
 
-    info_app(DRIVER.settings['car_upgrade'])
+    info_app()
 
     background = ac.addLabel(APP_WINDOW, "")
     ac.setPosition(background, 0, 0)
