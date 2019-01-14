@@ -9,7 +9,7 @@ try:
     sys.path.insert(0, os.path.join(os.path.dirname(__file__), SYSDIR))
     os.environ['PATH'] += ';.'
 
-    from info_app import info_app
+    import info_app
     from sim_info import info
     from car import Car
     from driver import Driver
@@ -43,7 +43,7 @@ def acMain(ac_version):
 
     ac.addRenderCallback(APP_WINDOW, render_app)
 
-    info_app()
+    info_app.init()
 
     background = ac.addLabel(APP_WINDOW, "")
     ac.setPosition(background, 0, 0)

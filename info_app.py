@@ -174,7 +174,7 @@ class NegativeTransverseForceImage(Texture):
             self.draw()
 
 
-def info_app():
+def init():
     """Add the info window/app."""
     global info_telemetry
     window_info = ac.newApp("Info")
