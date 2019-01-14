@@ -139,7 +139,7 @@ def set_tyre_temps(*temps):
         ac.setText(window.starting_label_no, "{}C".format(round(tyre.temp)))
 
 
-def init_tyre_apps(telemetry):
+def init(telemetry):
     global TYRES, WINDOWS
     TYRES = [
         Tyre(telemetry),

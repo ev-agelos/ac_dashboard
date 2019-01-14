@@ -9,13 +9,13 @@ try:
     sys.path.insert(0, os.path.join(os.path.dirname(__file__), SYSDIR))
     os.environ['PATH'] += ';.'
 
-    import info_app
     from sim_info import info
+    import info_app
+    from telemetry_provider import TelemetryProvider
     from car import Car
     from driver import Driver
-    from telemetry_provider import TelemetryProvider
-    import dashboard
-    import tyres
+    import dashboard_elements
+    import tyre_apps
 except Exception as err:
     ac.log("ac_dashboard: " + str(err))
 import acsys
@@ -37,9 +37,9 @@ def acMain(ac_version):
     ac.drawBorder(APP_WINDOW, 0)
 
     CAR.name = ac.getCarName(0)
-    dashboard.init_dashboard_elements(MAIN_APP_TELEMETRY, APP_WINDOW, CAR.name)
+    dashboard_elements.init(MAIN_APP_TELEMETRY, APP_WINDOW, CAR.name)
 
-    tyres.init_tyre_apps(MAIN_APP_TELEMETRY)
+    tyre_apps.init(MAIN_APP_TELEMETRY)
 
     ac.addRenderCallback(APP_WINDOW, render_app)
 
@@ -61,7 +61,7 @@ def acUpdate(delta_t):
     if completed_laps > DRIVER.total_laps:
         CAR.fuel_at_start = CAR.fuel  # keep track of fuel on lap change
         DRIVER.last_splits = ac.getLastSplits(0)
-        tyres.set_tyre_usage(DRIVER.last_splits)
+        tyre_apps.set_tyre_usage(DRIVER.last_splits)
 
     DRIVER.total_laps = completed_laps
     DRIVER.lap_time = ac.getCarState(0, acsys.CS.LapTime)
@@ -69,7 +69,7 @@ def acUpdate(delta_t):
     CAR.speed = ac.getCarState(0, acsys.CS.SpeedKMH)
     CAR.rpm = ac.getCarState(0, acsys.CS.RPM)
 
-    tyres.set_tyre_temps(*ac.getCarState(0, acsys.CS.CurrentTyresCoreTemp))
+    tyre_apps.set_tyre_temps(*ac.getCarState(0, acsys.CS.CurrentTyresCoreTemp))
 
     read_shared_memory()
     CAR.g_forces = ac.getCarState(0, acsys.CS.AccG)

@@ -300,7 +300,7 @@ def pos_laps_click(x, y):
         POS_LAPS_BUTTON.click()
 
 
-def init_dashboard_elements(telemetry_provider, app_window, car):
+def init(telemetry_provider, app_window, car):
     elements = [
         FuelBar(telemetry_provider),
         FuelButton(telemetry_provider),
