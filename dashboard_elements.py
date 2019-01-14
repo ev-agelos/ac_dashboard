@@ -301,15 +301,28 @@ def pos_laps_click(x, y):
 
 
 def init(telemetry_provider, app_window, car):
-    elements = [
-        FuelBar(telemetry_provider),
-        FuelButton(telemetry_provider),
-        GearLabel(telemetry_provider),
-        SpeedRpmButton(telemetry_provider),
-        TimesButton(telemetry_provider),
-        PosLapsButton(telemetry_provider),
-        SectorButton(telemetry_provider),
-        Speedometer(telemetry_provider, f1_style=car=='tatuusfa1'),
-    ]
-    for element in elements:
-        element.window = app_window
+    global FUEL_BUTTON, SECTOR_BUTTON, TIMES_BUTTON, SPEED_RPM_BUTTON
+    global POS_LAPS_BUTTON
+    fuel_bar = FuelBar(telemetry_provider)
+    fuel_bar.window = app_window
+
+    FUEL_BUTTON = FuelButton(telemetry_provider)
+    FUEL_BUTTON.window = app_window
+
+    gear_label = GearLabel(telemetry_provider)
+    gear_label.window = app_window
+
+    SPEED_RPM_BUTTON = SpeedRpmButton(telemetry_provider)
+    SPEED_RPM_BUTTON.window = app_window
+
+    TIMES_BUTTON = TimesButton(telemetry_provider)
+    TIMES_BUTTON.window = app_window
+
+    POS_LAPS_BUTTON = PosLapsButton(telemetry_provider)
+    POS_LAPS_BUTTON.window = app_window
+
+    SECTOR_BUTTON = SectorButton(telemetry_provider)
+    SECTOR_BUTTON.window = app_window
+
+    speedometer = Speedometer(telemetry_provider, f1_style=car=='tatuusfa1')
+    speedometer.window = app_window

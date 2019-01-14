@@ -113,14 +113,14 @@ class Tyre:
 
 
 def render_tyres(deltaT):
-    FR.compound = info.graphics.tyreCompound
-    WINDOW_FL.draw_tyre_colors(FL.temp)
-    FL.compound = info.graphics.tyreCompound
-    WINDOW_FR.draw_tyre_colors(FR.temp)
-    RR.compound = info.graphics.tyreCompound
-    WINDOW_RL.draw_tyre_colors(RL.temp)
-    RL.compound =info.graphics.tyreCompound
-    WINDOW_RR.draw_tyre_colors(RR.temp)
+    TYRES[1].compound = info.graphics.tyreCompound
+    WINDOWS[0].draw_tyre_colors(TYRES[0].temp)
+    TYRES[0].compound = info.graphics.tyreCompound
+    WINDOWS[1].draw_tyre_colors(TYRES[1].temp)
+    TYRES[3].compound = info.graphics.tyreCompound
+    WINDOWS[2].draw_tyre_colors(TYRES[2].temp)
+    TYRES[2].compound =info.graphics.tyreCompound
+    WINDOWS[3].draw_tyre_colors(TYRES[3].temp)
 
 
 def set_tyre_usage(last_splits):
