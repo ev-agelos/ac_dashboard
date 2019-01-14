@@ -13,11 +13,9 @@ try:
     from sim_info import info
     from car import Car
     from driver import Driver
-    from tyres import (FL, FR, RL, RR, WINDOW_FL, WINDOW_FR, WINDOW_RL,
-                       WINDOW_RR)
-    from dashboard import (MAIN_APP_TELEMETRY, SPEEDOMETER, FUEL_BAR,
-                           FUEL_BUTTON, GEAR_LABEL, SPEED_RPM_BUTTON,
-                           TIMES_BUTTON, POS_LAPS_BUTTON, SECTOR_BUTTON)
+    from telemetry_provider import TelemetryProvider
+    import dashboard
+    import tyres
 except Exception as err:
     ac.log("ac_dashboard: " + str(err))
 import acsys
@@ -26,6 +24,7 @@ import acsys
 APP_WINDOW = None
 STATIC_SHARED_MEMORY_IS_READ = False
 NUM_CARS = 1  # at least user's CAR
+MAIN_APP_TELEMETRY = TelemetryProvider()
 DRIVER = Driver(MAIN_APP_TELEMETRY)
 CAR = Car(MAIN_APP_TELEMETRY)
 
@@ -36,14 +35,12 @@ def acMain(ac_version):
     APP_WINDOW = ac.newApp("")
     ac.setSize(APP_WINDOW, 600, 170)
     ac.drawBorder(APP_WINDOW, 0)
-    for dashboard_element in (FUEL_BAR, FUEL_BUTTON, GEAR_LABEL,
-                              SPEED_RPM_BUTTON, TIMES_BUTTON, POS_LAPS_BUTTON,
-                              SECTOR_BUTTON):
-        dashboard_element.window = APP_WINDOW
 
     CAR.name = ac.getCarName(0)
-    if CAR.name == 'tatuusfa1':
-        SPEEDOMETER.f1_style = True
+    dashboard.init_dashboard_elements(MAIN_APP_TELEMETRY, APP_WINDOW, CAR.name)
+
+    tyres.init_tyre_apps(MAIN_APP_TELEMETRY)
+
     ac.addRenderCallback(APP_WINDOW, render_app)
 
     info_app()
@@ -64,33 +61,22 @@ def acUpdate(delta_t):
     if completed_laps > DRIVER.total_laps:
         CAR.fuel_at_start = CAR.fuel  # keep track of fuel on lap change
         DRIVER.last_splits = ac.getLastSplits(0)
-        for window, tyre in zip((WINDOW_FL, WINDOW_FR, WINDOW_RL, WINDOW_RR),
-                                (FL, FR, RL, RR)):
-            ac.setText(window.opt_label,
-                       "Opt: {}%".format(round(tyre.time_on_opt * 100 /
-                                               sum(DRIVER.last_splits))))
-            tyre.time_on_opt = 0
-            tyre.time_on_cold = 0
-            tyre.time_on_hot = 0
+        tyres.set_tyre_usage(DRIVER.last_splits)
 
     DRIVER.total_laps = completed_laps
     DRIVER.lap_time = ac.getCarState(0, acsys.CS.LapTime)
     DRIVER.pb = ac.getCarState(0, acsys.CS.BestLap)
     CAR.speed = ac.getCarState(0, acsys.CS.SpeedKMH)
     CAR.rpm = ac.getCarState(0, acsys.CS.RPM)
-    FR.temp, FL.temp, RR.temp, RL.temp = ac.getCarState(
-        0, acsys.CS.CurrentTyresCoreTemp)
-    for window, tyre in zip((WINDOW_FL, WINDOW_FR, WINDOW_RL, WINDOW_RR),
-                            (FL, FR, RL, RR)):
-        ac.setText(window.starting_label_no,
-                   "{}C".format(round(tyre.temp)))
+
+    tyres.set_tyre_temps(*ac.getCarState(0, acsys.CS.CurrentTyresCoreTemp))
 
     read_shared_memory()
     CAR.g_forces = ac.getCarState(0, acsys.CS.AccG)
     CAR.gear = ac.getCarState(0, acsys.CS.Gear)
     DRIVER.performance_meter = ac.getCarState(0, acsys.CS.PerformanceMeter)
     MAIN_APP_TELEMETRY.notify(position=dict(car_position=DRIVER.position,
-                                   total_cars=NUM_CARS))
+                                            total_cars=NUM_CARS))
 
 
 def render_app(delta_t):
@@ -98,7 +84,6 @@ def render_app(delta_t):
     # AC does not render if any renderings are called outside of the function
     # that has been registered with ac.addRenderCallback
     MAIN_APP_TELEMETRY.update()
-
 
 
 def read_shared_memory():

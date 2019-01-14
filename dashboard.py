@@ -5,10 +5,6 @@ from itertools import cycle
 from utils import int_to_time
 from ui_elements import UIProgressBar, UILabel, UIButton
 from textures import Texture
-from telemetry_provider import TelemetryProvider
-
-
-MAIN_APP_TELEMETRY = TelemetryProvider()
 
 
 class DashboardButton(UIButton):
@@ -27,11 +23,11 @@ class DashboardButton(UIButton):
 
 class Speedometer:
 
-    def __init__(self, dashboard):
+    def __init__(self, dashboard, f1_style=False):
         self.dashboard = dashboard
         for telemetry in ('in_pits', 'rpm', 'lap_time'):
             self.dashboard.subscribe(telemetry, self)
-        self.f1_style = False
+        self.f1_style = f1_style
         self.leds = {
             'green': [Texture(pos_x=144 + (number*20), pos_y=41, width=32,
                               height=32, color=(1, 1, 1, 1),
@@ -304,12 +300,16 @@ def pos_laps_click(x, y):
         POS_LAPS_BUTTON.click()
 
 
-
-FUEL_BAR = FuelBar(MAIN_APP_TELEMETRY)
-FUEL_BUTTON = FuelButton(MAIN_APP_TELEMETRY)
-GEAR_LABEL = GearLabel(MAIN_APP_TELEMETRY)
-SPEED_RPM_BUTTON = SpeedRpmButton(MAIN_APP_TELEMETRY)
-TIMES_BUTTON = TimesButton(MAIN_APP_TELEMETRY)
-POS_LAPS_BUTTON = PosLapsButton(MAIN_APP_TELEMETRY)
-SECTOR_BUTTON = SectorButton(MAIN_APP_TELEMETRY)
-SPEEDOMETER = Speedometer(MAIN_APP_TELEMETRY)
+def init_dashboard_elements(telemetry_provider, app_window, car):
+    elements = [
+        FuelBar(telemetry_provider),
+        FuelButton(telemetry_provider),
+        GearLabel(telemetry_provider),
+        SpeedRpmButton(telemetry_provider),
+        TimesButton(telemetry_provider),
+        PosLapsButton(telemetry_provider),
+        SectorButton(telemetry_provider),
+        Speedometer(telemetry_provider, f1_style=car=='tatuusfa1'),
+    ]
+    for element in elements:
+        element.window = app_window

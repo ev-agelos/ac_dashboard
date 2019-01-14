@@ -2,7 +2,6 @@ import ac
 import acsys
 
 from sim_info import info
-from dashboard import MAIN_APP_TELEMETRY
 
 
 TYRE_COMPS = {
@@ -74,7 +73,7 @@ def get_compound_temps(car_name, compound):
 
 class Tyre:
 
-    def __init__(self, dashboard):
+    def __init__(self, telemetry):
         self._compound = None
         self.low_opt = 0
         self.high_opt = 0
@@ -82,7 +81,7 @@ class Tyre:
         self.time_on_opt = 0
         self.time_on_hot = 0
 
-        self.dashboard = dashboard
+        self.telemetry = telemetry
 
     @property
     def compound(self):
@@ -92,7 +91,7 @@ class Tyre:
     def compound(self, value):
         self._compound = value
         self.low_opt, self.high_opt = TYRE_COMPS.get(self._compound, (0, 0))
-        self.dashboard.notify(compound=self._compound,
+        self.telemetry.notify(compound=self._compound,
                               optimum_temps=(self.low_opt, self.high_opt))
 
     @property
@@ -124,11 +123,33 @@ def render_tyres(deltaT):
     WINDOW_RR.draw_tyre_colors(RR.temp)
 
 
-FL = Tyre(MAIN_APP_TELEMETRY)
-FR = Tyre(MAIN_APP_TELEMETRY)
-RL = Tyre(MAIN_APP_TELEMETRY)
-RR = Tyre(MAIN_APP_TELEMETRY)
-WINDOW_FL = TyreWindow("F_L", tyre=FL, render_function=render_tyres)
-WINDOW_FR = TyreWindow("F_R", tyre=FR, render_function=render_tyres)
-WINDOW_RL = TyreWindow("R_L", tyre=RL, render_function=render_tyres)
-WINDOW_RR = TyreWindow("R_R", tyre=RR, render_function=render_tyres)
+def set_tyre_usage(last_splits):
+    for window, tyre in zip(WINDOWS, TYRES):
+        laptime = sum(last_splits)
+        opt_time = tyre.time_on_opt * 100 / laptime
+        ac.setText(window.opt_label, "Opt: {}%".format(round(opt_time)))
+        tyre.time_on_opt = 0
+        tyre.time_on_cold = 0
+        tyre.time_on_hot = 0
+
+
+def set_tyre_temps(*temps):
+    TYRES[0].temp, TYRES[1].temp, TYRES[2].temp, TYRES[3].temp = temps
+    for window, tyre in zip(WINDOWS, TYRES):
+        ac.setText(window.starting_label_no, "{}C".format(round(tyre.temp)))
+
+
+def init_tyre_apps(telemetry):
+    global TYRES, WINDOWS
+    TYRES = [
+        Tyre(telemetry),
+        Tyre(telemetry),
+        Tyre(telemetry),
+        Tyre(telemetry),
+    ]
+    WINDOWS = [
+        TyreWindow("F_L", tyre=TYRES[0], render_function=render_tyres),
+        TyreWindow("F_R", tyre=TYRES[1], render_function=render_tyres),
+        TyreWindow("R_L", tyre=TYRES[2], render_function=render_tyres),
+        TyreWindow("R_R", tyre=TYRES[3], render_function=render_tyres),
+    ]
