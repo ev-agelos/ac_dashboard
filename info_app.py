@@ -4,7 +4,7 @@ import ac
 
 from ui_elements import UILabel
 from textures import Texture
-from telemetry_provider import TelemetryProvider
+from models import TelemetryProvider
 
 
 APP_DIR = os.path.dirname(os.path.realpath(__file__))

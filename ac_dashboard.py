@@ -11,9 +11,7 @@ try:
 
     from sim_info import info
     import info_app
-    from telemetry_provider import TelemetryProvider
-    from car import Car
-    from driver import Driver
+    from models import TelemetryProvider, Car, Driver
     import dashboard_elements
     import tyre_apps
 except Exception as err:
