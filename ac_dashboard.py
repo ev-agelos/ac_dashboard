@@ -9,21 +9,16 @@ try:
     sys.path.insert(0, os.path.join(os.path.dirname(__file__), SYSDIR))
     os.environ['PATH'] += ';.'
 
-    import json
-    from collections import defaultdict
-    from subprocess import Popen
     from info_app import info_app
     from sim_info import info
     from car import Car
     from driver import Driver
     from tyres import (FL, FR, RL, RR, WINDOW_FL, WINDOW_FR, WINDOW_RL,
                        WINDOW_RR)
-    from settings import (get_user_nationality, get_controller, get_racing_mode,
+    from settings import (get_user_nationality, get_controller,
+                          get_racing_mode,
                           get_user_assists, get_track_temp)
-    from utils import int_to_time
-    from dashboard import (MAIN_APP_TELEMETRY, FuelBar, FuelButton, GearLabel,
-                           SpeedRpmButton, TimesButton, PosLapsButton,
-                           SectorButton, SPEEDOMETER, FUEL_BAR,
+    from dashboard import (MAIN_APP_TELEMETRY, SPEEDOMETER, FUEL_BAR,
                            FUEL_BUTTON, GEAR_LABEL, SPEED_RPM_BUTTON,
                            TIMES_BUTTON, POS_LAPS_BUTTON, SECTOR_BUTTON)
 except Exception as err:

@@ -1,6 +1,5 @@
 """Car related information."""
 
-import ac
 
 from electronics import CAR_DATA
 
