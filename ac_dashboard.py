@@ -20,7 +20,7 @@ import acsys
 
 
 APP_WINDOW = None
-STATIC_SHARED_MEMORY_IS_READ = False
+READ_STATIC_SHARED_MEMORY_ONCE = False
 NUM_CARS = 1  # at least user's CAR
 MAIN_APP_TELEMETRY = TelemetryProvider()
 DRIVER = Driver(MAIN_APP_TELEMETRY)
@@ -85,13 +85,14 @@ def render_app(delta_t):
 
 
 def read_shared_memory():
-    global STATIC_SHARED_MEMORY_IS_READ, NUM_CARS
-    if not STATIC_SHARED_MEMORY_IS_READ:
-        while CAR.max_fuel is None or CAR.max_rpm is None:
-            CAR.max_fuel = info.static.maxFuel
-            CAR.max_rpm = info.static.maxRpm
+    global READ_STATIC_SHARED_MEMORY_ONCE, NUM_CARS
+    if not READ_STATIC_SHARED_MEMORY_ONCE:
+        while info.static.maxFuel is None or info.static.maxRpm is None:
+            pass  # wait for both to be read
+        CAR.max_fuel = info.static.maxFuel
+        CAR.max_rpm = info.static.maxRpm
         NUM_CARS = info.static.numCars
-        STATIC_SHARED_MEMORY_IS_READ = True
+        READ_STATIC_SHARED_MEMORY_ONCE = True
 
     CAR.tc = info.physics.tc
     CAR.abs = info.physics.abs
