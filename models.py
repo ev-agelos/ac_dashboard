@@ -2,13 +2,15 @@
 
 
 import json
-
+import os
 from collections import defaultdict
+
 from utils import int_to_time
 
 
 def get_car_electronics(car):
-    with open('electronics.json') as fob:
+    app_dir = os.path.dirname(os.path.realpath(__file__))
+    with open(app_dir + '\electronics.json') as fob:
         data = json.load(fob)
     return data.get(car, {})
 
