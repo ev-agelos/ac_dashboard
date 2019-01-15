@@ -4,6 +4,7 @@ try:
     import os
     import sys
     import platform
+    import threading
     sys.path.insert(0, "apps/python/ac_dashboard/DLLs")
     SYSDIR = "stdlib64" if platform.architecture()[0] == "64bit" else "stdlib"
     sys.path.insert(0, os.path.join(os.path.dirname(__file__), SYSDIR))
@@ -19,11 +20,18 @@ except Exception as err:
 import acsys
 
 
-READ_STATIC_SHARED_MEMORY_ONCE = False
-NUM_CARS = 1
 MAIN_APP_TELEMETRY = TelemetryProvider()
 DRIVER = Driver(MAIN_APP_TELEMETRY)
 CAR = Car(MAIN_APP_TELEMETRY)
+
+
+def read_static_shared_memory():
+    global NUM_CARS
+    while not (info.static.maxFuel or info.static.maxRpm or info.static.numCars):
+        continue  # wait for both to be read
+    CAR.max_fuel = info.static.maxFuel
+    CAR.max_rpm = info.static.maxRpm
+    NUM_CARS = info.static.numCars
 
 
 def acMain(ac_version):
@@ -42,12 +50,13 @@ def acMain(ac_version):
     tyre_apps.init(MAIN_APP_TELEMETRY)
     info_app.init()
 
+    threading.Thread(target=read_static_shared_memory).start()
+
     return "AC Dashboard"
 
 
 def acUpdate(delta_t):
     """Read data in real time from Assetto Corsa."""
-    global READ_STATIC_SHARED_MEMORY_ONCE, NUM_CARS
     # ac api
     CAR.in_pits = ac.isCarInPitlane(0)
     CAR.speed = ac.getCarState(0, acsys.CS.SpeedKMH)
@@ -77,15 +86,6 @@ def acUpdate(delta_t):
     DRIVER.total_laps = completed_laps
 
     tyre_apps.set_tyre_temps(*ac.getCarState(0, acsys.CS.CurrentTyresCoreTemp))
-
-    # shared memory
-    if not READ_STATIC_SHARED_MEMORY_ONCE:
-        while info.static.maxFuel is None or info.static.maxRpm is None:
-            pass  # wait for both to be read
-        CAR.max_fuel = info.static.maxFuel
-        CAR.max_rpm = info.static.maxRpm
-        NUM_CARS = info.static.numCars
-        READ_STATIC_SHARED_MEMORY_ONCE = True
 
     MAIN_APP_TELEMETRY.notify(position=dict(car_position=DRIVER.position,
                                             total_cars=NUM_CARS))
