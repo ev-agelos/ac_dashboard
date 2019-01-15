@@ -86,10 +86,11 @@ def acUpdate(delta_t):
     DRIVER.total_laps = completed_laps
 
     tyre_apps.set_tyre_temps(*ac.getCarState(0, acsys.CS.CurrentTyresCoreTemp))
+    tyre_apps.set_tyre_slip_ratios(*ac.getCarState(0, acsys.CS.SlipRatio))
 
     MAIN_APP_TELEMETRY.notify(position=dict(car_position=DRIVER.position,
                                             total_cars=NUM_CARS))
-
+    
 
 def render_app(delta_t):
     # NOTE: call MAIN_APP_TELEMETRY here so it can include any renderings otherwise

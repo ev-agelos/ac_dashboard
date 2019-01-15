@@ -51,16 +51,15 @@ class TyreWindow:
         ac.setFontSize(self.starting_label_no, 25)
         ac.setPosition(self.starting_label_no, 35, 30)
 
-    # def draw_tyre_colors(self, temp):
-    #     if temp < self.tyre.low_opt:
-    #         ac.setBackgroundColor(self.window, 0, 0, 1)
-    #     elif temp > self.tyre.high_opt:
-    #         ac.setBackgroundColor(self.window, 1, 0, 0)
-    #     else:
-    #         ac.setBackgroundColor(self.window, 0, 1, 0)
-
-    #     ac.setBackgroundOpacity(self.window, 0.5)
-    #     ac.drawBorder(self.window, 0)
+    def draw_tyre_slip_ratio(self, value):
+        if value > 0.1:
+            ac.setBackgroundColor(self.window, 1, 0, 0)
+        elif value < -0.1:
+            ac.setBackgroundColor(self.window, 0, 0, 1)
+        elif value == 0.0:  # tyre in the air
+            ac.setBackgroundColor(self.window, 1, 1, 1)
+        else:
+            ac.setBackgroundColor(self.window, 0, 0, 0)
     
     def draw_tyre_temp_colors(self, temp):
         if not (self.tyre.low_opt or self.tyre.high_opt):
@@ -86,6 +85,7 @@ class Tyre:
 
     def __init__(self, telemetry):
         self._compound = None
+        self.slip_ratio = 0
         self.low_opt = 0
         self.high_opt = 0
         self.time_on_cold = 0
@@ -127,6 +127,7 @@ def render_tyres(deltaT):
     for tyre, window in zip(TYRES, WINDOWS):
         tyre.compound = info.graphics.tyreCompound
         window.draw_tyre_temp_colors(tyre.temp)
+        window.draw_tyre_slip_ratio(tyre.slip_ratio)
         # opacity looses its value when window is clicked
         ac.setBackgroundOpacity(window.window, 1)
 
@@ -145,6 +146,10 @@ def set_tyre_temps(*temps):
     TYRES[0].temp, TYRES[1].temp, TYRES[2].temp, TYRES[3].temp = temps
     for window, tyre in zip(WINDOWS, TYRES):
         ac.setText(window.starting_label_no, "{}C".format(round(tyre.temp)))
+
+
+def set_tyre_slip_ratios(*slip_ratios):
+    TYRES[0].slip_ratio, TYRES[1].slip_ratio, TYRES[2].slip_ratio, TYRES[3].slip_ratio = slip_ratios
 
 
 def init(telemetry):
