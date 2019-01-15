@@ -28,11 +28,12 @@ CAR = Car(MAIN_APP_TELEMETRY)
 
 def acMain(ac_version):
     """Main function that is invoked by Assetto Corsa."""
+    global app_window
     app_window = ac.newApp("")
     ac.setSize(app_window, 343, 78)
     ac.drawBorder(app_window, 0)
-    ac.setBackgroundOpacity(app_window, 1)
-    
+    app_dir = os.path.dirname(os.path.realpath(__file__))
+    ac.setBackgroundTexture(app_window, app_dir + "/Images/Dashboard.png")
 
     CAR.name = ac.getCarName(0)
     dashboard_elements.init(MAIN_APP_TELEMETRY, app_window, CAR.name)
@@ -43,11 +44,6 @@ def acMain(ac_version):
 
     info_app.init()
 
-    background = ac.addLabel(app_window, "")
-    ac.setPosition(background, 0, 0)
-    ac.setSize(background, 343, 78)
-    app_dir = os.path.dirname(os.path.realpath(__file__))
-    ac.setBackgroundTexture(background, app_dir + "/Images/Dashboard.png")
     return "AC Dashboard"
 
 
@@ -81,6 +77,7 @@ def render_app(delta_t):
     # NOTE: call MAIN_APP_TELEMETRY here so it can include any renderings otherwise
     # AC does not render if any renderings are called outside of the function
     # that has been registered with ac.addRenderCallback
+    ac.setBackgroundOpacity(app_window, 1)
     MAIN_APP_TELEMETRY.update()
 
 
