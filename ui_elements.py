@@ -14,13 +14,14 @@ class UIElement:
     def __init__(self, text='', text_align='center', size=(20, 20), pos=(0, 0),
                  font_color=(1, 1, 1, 1), font_size=12, bg_color=(1, 1, 1),
                  draw_bg=1, bg_opacity=0.6, bg_texture='', draw_border=0,
-                 visible=1):
+                 visible=1, font='Roboto'):
         self.id = None
         self._window = None
         self._text = text
         self._text_align = text_align
         self._size = size
         self._position = pos
+        self._font = font
         self._font_color = font_color
         self._font_size = font_size
         self._bg_color = bg_color
@@ -89,6 +90,14 @@ class UIElement:
         ac.setPosition(self.id, *value)
 
     @property
+    def font(self):
+        return self._font
+
+    @font.setter
+    def font(self, value):
+        ac.setCustomFont(self.id, value, 0, 0)
+
+    @property
     def font_color(self):
         return self._font_color
 
@@ -148,7 +157,9 @@ class UIElement:
             if isinstance(attribute, str) and \
                     attribute not in ('id', '_window') and \
                     hasattr(self, attribute):
-                setattr(self, attribute[1:], getattr(self, attribute))
+                value = getattr(self, attribute)
+                if value is not None:
+                    setattr(self, attribute[1:], getattr(self, attribute))
 
     def show(self):
         ac.setVisible(self.id, 1)

@@ -133,8 +133,8 @@ class FuelButton(DashboardButton):
 class GearLabel(UILabel):
 
     def __init__(self, dashboard):
-        super().__init__(pos=(158, 6), size=(40, 55), bg_opacity=0,
-                         font_color=(1, 0, 0, 1), font_size=40)
+        super().__init__(pos=(158, 8), size=(40, 55), bg_opacity=0,
+                         font_color=(1, 0, 0, 1), font_size=40, font='Digital-7')
         self.dashboard = dashboard
         self.dashboard.subscribe('gear', self)
 
@@ -148,7 +148,7 @@ class SpeedRpmButton(DashboardButton):
 
     def __init__(self, dashboard):
         super().__init__(rpm_speed_click, pos=(225, 17), size=(80, 35),
-                         font_color=(1, 0, 0, 1), font_size=25)
+                         font_color=(1, 0, 0, 1), font_size=25, font='Digital-7')
         self.dashboard = dashboard
         for telemetry in ('in_pits', 'lap_time'):
             self.dashboard.subscribe(telemetry, self)
