@@ -51,16 +51,27 @@ class TyreWindow:
         ac.setFontSize(self.starting_label_no, 25)
         ac.setPosition(self.starting_label_no, 35, 30)
 
-    def draw_tyre_colors(self, temp):
-        if temp < self.tyre.low_opt:
-            ac.setBackgroundColor(self.window, 0, 0, 1)
-        elif temp > self.tyre.high_opt:
-            ac.setBackgroundColor(self.window, 1, 0, 0)
-        else:
-            ac.setBackgroundColor(self.window, 0, 1, 0)
+    # def draw_tyre_colors(self, temp):
+    #     if temp < self.tyre.low_opt:
+    #         ac.setBackgroundColor(self.window, 0, 0, 1)
+    #     elif temp > self.tyre.high_opt:
+    #         ac.setBackgroundColor(self.window, 1, 0, 0)
+    #     else:
+    #         ac.setBackgroundColor(self.window, 0, 1, 0)
 
-        ac.setBackgroundOpacity(self.window, 0.5)
-        ac.drawBorder(self.window, 0)
+    #     ac.setBackgroundOpacity(self.window, 0.5)
+    #     ac.drawBorder(self.window, 0)
+    
+    def draw_tyre_temp_colors(self, temp):
+        if not (self.tyre.low_opt or self.tyre.high_opt):
+            ac.setFontColor(self.starting_label_no, 1, 1, 1, 1)
+            return
+        if temp < self.tyre.low_opt:
+            ac.setFontColor(self.starting_label_no, 0, 0, 1, 1)
+        elif temp > self.tyre.high_opt:
+            ac.setFontColor(self.starting_label_no, 1, 0, 0, 1)
+        else:
+            ac.setFontColor(self.starting_label_no, 0, 1, 0, 1)
 
 
 def get_compound_temps(car_name, compound):
@@ -115,7 +126,9 @@ class Tyre:
 def render_tyres(deltaT):
     for tyre, window in zip(TYRES, WINDOWS):
         tyre.compound = info.graphics.tyreCompound
-        window.draw_tyre_colors(tyre.temp)
+        window.draw_tyre_temp_colors(tyre.temp)
+        # opacity looses its value when window is clicked
+        ac.setBackgroundOpacity(window.window, 1)
 
 
 def set_tyre_usage(last_splits):
