@@ -29,20 +29,20 @@ class Speedometer:
             self.dashboard.subscribe(telemetry, self)
         self.f1_style = f1_style
         self.leds = {
-            'green': [Texture(pos_x=144 + (number*20), pos_y=41, width=32,
+            'green': [Texture(pos_x=15 + (number*20), pos_y=-7, width=32,
                               height=32, color=(1, 1, 1, 1),
                               filename='LedGreen.png')
                       for number in range(5)],
-            'red':  [Texture(pos_x=144 + (number*20), pos_y=41, width=32,
+            'red':  [Texture(pos_x=15 + (number*20), pos_y=-7, width=32,
                              height=32, color=(1, 1, 1, 1),
                              filename='LedRed.png')
                      for number in range(5, 10)],
-            'blue': [Texture(pos_x=144 + (number*20), pos_y=41, width=32,
+            'blue': [Texture(pos_x=15 + (number*20), pos_y=-7, width=32,
                              height=32, color=(1, 1, 1, 1),
                              filename='LedBlue.png')
                      for number in range(10, 15)]
         }
-        self.pit_leds = Texture(pos_x=129, pos_y=67, width=343, height=38,
+        self.pit_leds = Texture(pos_x=0, pos_y=20, width=343, height=38,
                                 color=(1, 1, 1, 1), filename='LedsYellow.png')
         self.leds_counter = len([led for group in self.leds.values()
                                  for led in group])
@@ -99,7 +99,7 @@ class Speedometer:
 class FuelBar(UIProgressBar):
 
     def __init__(self, dashboard, *args):
-        super().__init__(*args, size=(78, 19), pos=(181, 106),
+        super().__init__(*args, size=(78, 19), pos=(51, 57),
                          font_color=(1, 0.56, 0, 1), bg_color=(1, 1, 0),
                          bg_opacity=0.4, draw_border=0)
         self.dashboard = dashboard
@@ -115,7 +115,7 @@ class FuelButton(DashboardButton):
     modes = cycle(['fuel_percent', 'burned_fuel', 'fuel_laps_left'])
 
     def __init__(self, dashboard):
-        super().__init__(fuel_click, text='/', size=(78, 19), pos=(181, 106),
+        super().__init__(fuel_click, text='/', size=(78, 19), pos=(51, 57),
                          font_color=(0, 0, 0, 1), draw_border=1, bg_opacity=0)
         self.dashboard = dashboard
         self.click()
@@ -133,7 +133,7 @@ class FuelButton(DashboardButton):
 class GearLabel(UILabel):
 
     def __init__(self, dashboard):
-        super().__init__(pos=(288, 55), size=(40, 55), bg_opacity=0,
+        super().__init__(pos=(158, 6), size=(40, 55), bg_opacity=0,
                          font_color=(1, 0, 0, 1), font_size=40)
         self.dashboard = dashboard
         self.dashboard.subscribe('gear', self)
@@ -147,7 +147,7 @@ class SpeedRpmButton(DashboardButton):
     modes = cycle(['speed', 'max_speed', 'rpm'])
 
     def __init__(self, dashboard):
-        super().__init__(rpm_speed_click, pos=(355, 67), size=(80, 35),
+        super().__init__(rpm_speed_click, pos=(225, 17), size=(80, 35),
                          font_color=(1, 0, 0, 1), font_size=25)
         self.dashboard = dashboard
         for telemetry in ('in_pits', 'lap_time'):
@@ -186,7 +186,7 @@ class TimesButton(DashboardButton):
     modes = cycle(['pb', 'theoretical_best'])
 
     def __init__(self, dashboard):
-        super().__init__(times_click, pos=(268, 105), size=(80, 20),
+        super().__init__(times_click, pos=(138, 56), size=(80, 20),
                          font_size=15)
         self.dashboard = dashboard
         self.dashboard.subscribe('in_pits', self)
@@ -217,8 +217,8 @@ class PosLapsButton(DashboardButton):
     modes = cycle(['laps', 'position'])
 
     def __init__(self, dashboard):
-        super().__init__(pos_laps_click, text='/', pos=(180, 67),
-                         size=(80, 33), text_align='left', font_size=25)
+        super().__init__(pos_laps_click, text='/', pos=(50, 17),
+                         size=(80, 35), text_align='left', font_size=25)
         self.dashboard = dashboard
         for telemetry in ('in_pits', 'lap_time'):
             self.dashboard.subscribe(telemetry, self)
@@ -246,7 +246,7 @@ class SectorButton(DashboardButton):
     modes = cycle(['performance_meter', 'last_sector'])
 
     def __init__(self, dashboard, *args):
-        super().__init__(sector_click, *args, pos=(355, 105), size=(80, 20),
+        super().__init__(sector_click, *args, pos=(225, 56), size=(80, 20),
                          font_size=15)
         self.dashboard = dashboard
         self.dashboard.subscribe('in_pits', self)

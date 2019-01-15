@@ -29,8 +29,10 @@ CAR = Car(MAIN_APP_TELEMETRY)
 def acMain(ac_version):
     """Main function that is invoked by Assetto Corsa."""
     app_window = ac.newApp("")
-    ac.setSize(app_window, 600, 170)
+    ac.setSize(app_window, 343, 78)
     ac.drawBorder(app_window, 0)
+    ac.setBackgroundOpacity(app_window, 1)
+    
 
     CAR.name = ac.getCarName(0)
     dashboard_elements.init(MAIN_APP_TELEMETRY, app_window, CAR.name)
@@ -43,7 +45,7 @@ def acMain(ac_version):
 
     background = ac.addLabel(app_window, "")
     ac.setPosition(background, 0, 0)
-    ac.setSize(background, 600, 170)
+    ac.setSize(background, 343, 78)
     app_dir = os.path.dirname(os.path.realpath(__file__))
     ac.setBackgroundTexture(background, app_dir + "/Images/Dashboard.png")
     return "AC Dashboard"
