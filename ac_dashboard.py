@@ -20,7 +20,7 @@ import acsys
 
 
 READ_STATIC_SHARED_MEMORY_ONCE = False
-NUM_CARS = 1  # at least user's CAR
+NUM_CARS = 1
 MAIN_APP_TELEMETRY = TelemetryProvider()
 DRIVER = Driver(MAIN_APP_TELEMETRY)
 CAR = Car(MAIN_APP_TELEMETRY)
@@ -34,14 +34,12 @@ def acMain(ac_version):
     ac.drawBorder(app_window, 0)
     app_dir = os.path.dirname(os.path.realpath(__file__))
     ac.setBackgroundTexture(app_window, app_dir + "/Images/Dashboard.png")
+    ac.addRenderCallback(app_window, render_app)
 
     CAR.name = ac.getCarName(0)
     dashboard_elements.init(MAIN_APP_TELEMETRY, app_window, CAR.name)
 
     tyre_apps.init(MAIN_APP_TELEMETRY)
-
-    ac.addRenderCallback(app_window, render_app)
-
     info_app.init()
 
     return "AC Dashboard"
@@ -49,26 +47,46 @@ def acMain(ac_version):
 
 def acUpdate(delta_t):
     """Read data in real time from Assetto Corsa."""
+    global READ_STATIC_SHARED_MEMORY_ONCE, NUM_CARS
+    # ac api
     CAR.in_pits = ac.isCarInPitlane(0)
-    DRIVER.position = ac.getCarRealTimeLeaderboardPosition(0)
-    completed_laps = ac.getCarState(0, acsys.CS.LapCount)
-    if completed_laps > DRIVER.total_laps:
-        CAR.fuel_at_start = CAR.fuel  # keep track of fuel on lap change
-        DRIVER.last_splits = ac.getLastSplits(0)
-        tyre_apps.set_tyre_usage(DRIVER.last_splits)
-
-    DRIVER.total_laps = completed_laps
-    DRIVER.lap_time = ac.getCarState(0, acsys.CS.LapTime)
-    DRIVER.pb = ac.getCarState(0, acsys.CS.BestLap)
     CAR.speed = ac.getCarState(0, acsys.CS.SpeedKMH)
     CAR.rpm = ac.getCarState(0, acsys.CS.RPM)
+    CAR.g_forces = ac.getCarState(0, acsys.CS.AccG)
+    CAR.gear = ac.getCarState(0, acsys.CS.Gear)
+    DRIVER.position = ac.getCarRealTimeLeaderboardPosition(0)
+    DRIVER.lap_time = ac.getCarState(0, acsys.CS.LapTime)
+    DRIVER.pb = ac.getCarState(0, acsys.CS.BestLap)
+    DRIVER.performance_meter = ac.getCarState(0, acsys.CS.PerformanceMeter)
+
+    # shared memory
+    CAR.tc = info.physics.tc
+    CAR.abs = info.physics.abs
+    CAR.drs = info.physics.drs
+    CAR.fuel = info.physics.fuel
+    DRIVER.sector = info.graphics.currentSectorIndex
+    DRIVER.laps_counter = info.graphics.numberOfLaps
+    DRIVER.last_sector_time = info.graphics.lastSectorTime
+
+    # on lap change keep track of fuel and read then last splits
+    completed_laps = ac.getCarState(0, acsys.CS.LapCount)
+    if completed_laps > DRIVER.total_laps:
+        CAR.fuel_at_start = CAR.fuel
+        DRIVER.last_splits = ac.getLastSplits(0)
+        tyre_apps.set_tyre_usage(DRIVER.last_splits)
+    DRIVER.total_laps = completed_laps
 
     tyre_apps.set_tyre_temps(*ac.getCarState(0, acsys.CS.CurrentTyresCoreTemp))
 
-    read_shared_memory()
-    CAR.g_forces = ac.getCarState(0, acsys.CS.AccG)
-    CAR.gear = ac.getCarState(0, acsys.CS.Gear)
-    DRIVER.performance_meter = ac.getCarState(0, acsys.CS.PerformanceMeter)
+    # shared memory
+    if not READ_STATIC_SHARED_MEMORY_ONCE:
+        while info.static.maxFuel is None or info.static.maxRpm is None:
+            pass  # wait for both to be read
+        CAR.max_fuel = info.static.maxFuel
+        CAR.max_rpm = info.static.maxRpm
+        NUM_CARS = info.static.numCars
+        READ_STATIC_SHARED_MEMORY_ONCE = True
+
     MAIN_APP_TELEMETRY.notify(position=dict(car_position=DRIVER.position,
                                             total_cars=NUM_CARS))
 
@@ -81,24 +99,5 @@ def render_app(delta_t):
     MAIN_APP_TELEMETRY.update()
 
 
-def read_shared_memory():
-    global READ_STATIC_SHARED_MEMORY_ONCE, NUM_CARS
-    if not READ_STATIC_SHARED_MEMORY_ONCE:
-        while info.static.maxFuel is None or info.static.maxRpm is None:
-            pass  # wait for both to be read
-        CAR.max_fuel = info.static.maxFuel
-        CAR.max_rpm = info.static.maxRpm
-        NUM_CARS = info.static.numCars
-        READ_STATIC_SHARED_MEMORY_ONCE = True
 
-    CAR.tc = info.physics.tc
-    CAR.abs = info.physics.abs
-    CAR.drs = info.physics.drs
-    CAR.fuel = info.physics.fuel
 
-    # Read data once after sector change
-    sector_index = info.graphics.currentSectorIndex
-    if sector_index != DRIVER.sector:
-        DRIVER.sector = sector_index
-    DRIVER.laps_counter = info.graphics.numberOfLaps
-    DRIVER.last_sector_time = info.graphics.lastSectorTime

@@ -168,8 +168,9 @@ class Car:
             self._fuel = value
             if self._fuel_at_start is None and self._fuel > 0:  # set the first value
                 self._fuel_at_start = self._fuel
-            fuel_percent = (value * 100) / self.max_fuel
-            self.dashboard.notify(fuel_percent=fuel_percent)
+            if self.max_fuel is not None and self.max_fuel > 0:
+                fuel_percent = (value * 100) / self.max_fuel
+                self.dashboard.notify(fuel_percent=fuel_percent)
 
         self.dashboard.notify(burned_fuel=self.burned_fuel,
                               fuel_laps_left=self.est_fuel_laps)
