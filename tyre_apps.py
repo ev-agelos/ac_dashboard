@@ -1,3 +1,5 @@
+import time
+
 import ac
 import acsys
 
@@ -44,17 +46,19 @@ class TyreWindow:
         self.window = ac.newApp(name)
         self.tyre = tyre
         ac.setSize(self.window, 100, 120)
-        self.opt_label = ac.addLabel(self.window, "%")
-        ac.setPosition(self.opt_label, 30, 70)
+        self.opt_label = ac.addLabel(self.window, "Opt:")
+        ac.setPosition(self.opt_label, 5, 50)
+        self.slip_label = ac.addLabel(self.window, "Slip:\nSkid:")
+        ac.setPosition(self.slip_label, 5, 70)
         self.starting_label_no = ac.addLabel(self.window, "")
         ac.addRenderCallback(self.window, render_function)
         ac.setFontSize(self.starting_label_no, 25)
-        ac.setPosition(self.starting_label_no, 35, 30)
+        ac.setPosition(self.starting_label_no, 35, 20)
 
     def draw_tyre_slip_ratio(self, value):
-        if value > 0.1:
+        if value > self.tyre.slip_ratio_limit:
             ac.setBackgroundColor(self.window, 1, 0, 0)
-        elif value < -0.1:
+        elif value < -self.tyre.slip_ratio_limit:
             ac.setBackgroundColor(self.window, 0, 0, 1)
         elif value == 0.0:  # tyre in the air
             ac.setBackgroundColor(self.window, 1, 1, 1)
@@ -83,9 +87,17 @@ def get_compound_temps(car_name, compound):
 
 class Tyre:
 
+    slip_ratio_limit = 0.1
+
     def __init__(self, telemetry):
         self._compound = None
-        self.slip_ratio = 0
+        self._slip_ratio = 0
+        self.slip_time = 0
+        self.skid_time = 0
+        self.is_sliding = False
+        self.is_skidding = False
+        self.start_sliding = None
+        self.start_skidding = None
         self.low_opt = 0
         self.high_opt = 0
         self.time_on_cold = 0
@@ -104,6 +116,34 @@ class Tyre:
         self.low_opt, self.high_opt = TYRE_COMPS.get(self._compound, (0, 0))
         self.telemetry.notify(compound=self._compound,
                               optimum_temps=(self.low_opt, self.high_opt))
+
+    @property
+    def slip_ratio(self):
+        return self._slip_ratio
+
+    @slip_ratio.setter
+    def slip_ratio(self, value):
+        self._slip_ratio = value
+
+        if value > Tyre.slip_ratio_limit:
+            if self.is_sliding:
+                now = time.time()
+                self.slip_time += now - self.start_sliding
+                self.start_sliding = now
+            else:
+                self.is_sliding = True
+                self.start_sliding = time.time()
+        elif value < -Tyre.slip_ratio_limit:
+            if self.is_skidding:
+                now = time.time()
+                self.skid_time += now - self.start_skidding
+                self.start_skidding = now
+            else:
+                self.is_skidding = True
+                self.start_skidding = time.time()
+        else:  # tyre normal or on air
+            self.is_skidding = False
+            self.is_sliding = False
 
     @property
     def temp(self):
@@ -141,15 +181,23 @@ def set_tyre_usage(last_splits):
         tyre.time_on_cold = 0
         tyre.time_on_hot = 0
 
+        ac.setText(window.slip_label, "Slip: {}\nSkid: {}".format(
+            round(tyre.slip_time, 2),
+            round(tyre.skid_time, 2)
+        ))
+        tyre.skid_time = 0
+        tyre.slip_time = 0
+
 
 def set_tyre_temps(*temps):
     TYRES[0].temp, TYRES[1].temp, TYRES[2].temp, TYRES[3].temp = temps
     for window, tyre in zip(WINDOWS, TYRES):
-        ac.setText(window.starting_label_no, "{}C".format(round(tyre.temp)))
+        ac.setText(window.starting_label_no, "{}\u2103".format(round(tyre.temp)))
 
 
 def set_tyre_slip_ratios(*slip_ratios):
-    TYRES[0].slip_ratio, TYRES[1].slip_ratio, TYRES[2].slip_ratio, TYRES[3].slip_ratio = slip_ratios
+    for tyre, slip_ratio in zip(TYRES, slip_ratios):
+        tyre.slip_ratio = slip_ratio
 
 
 def init(telemetry):
