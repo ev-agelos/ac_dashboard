@@ -92,7 +92,7 @@ class Tyre:
 
     slip_ratio_limit = 0.1
 
-    def __init__(self, telemetry):
+    def __init__(self, dashboard):
         self._compound = None
         self._temp = 0
         self._slip_ratio = 0
@@ -108,7 +108,7 @@ class Tyre:
         self.time_on_opt = 0
         self.time_on_hot = 0
 
-        self.telemetry = telemetry
+        self.dashboard = dashboard
 
     @property
     def compound(self):
@@ -118,7 +118,7 @@ class Tyre:
     def compound(self, value):
         self._compound = value
         self.low_opt, self.high_opt = TYRE_COMPS.get(self._compound, (0, 0))
-        self.telemetry.notify(compound=self._compound,
+        self.dashboard.notify(compound=self._compound,
                               optimum_temps=(self.low_opt, self.high_opt))
 
     @property
@@ -204,13 +204,13 @@ def set_tyre_slip_ratios(*slip_ratios):
         tyre.slip_ratio = slip_ratio
 
 
-def init(telemetry):
+def init(dashboard):
     global TYRES, WINDOWS
     TYRES = [
-        Tyre(telemetry),
-        Tyre(telemetry),
-        Tyre(telemetry),
-        Tyre(telemetry),
+        Tyre(dashboard),
+        Tyre(dashboard),
+        Tyre(dashboard),
+        Tyre(dashboard),
     ]
     WINDOWS = [
         TyreWindow("FL", tyre=TYRES[0], render_function=render_tyres),
