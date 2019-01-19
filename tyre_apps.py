@@ -94,6 +94,7 @@ class Tyre:
 
     def __init__(self, telemetry):
         self._compound = None
+        self._temp = 0
         self._slip_ratio = 0
         self.slip_time = 0
         self.skid_time = 0
