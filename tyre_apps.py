@@ -41,11 +41,14 @@ EXOS_TYRE_COMPS = {'Slick SuperSoft': (85, 110), 'Slick Soft': (105, 125),
 class TyreWindow:
 
     window = None
+    width = 100
+    height = 120
 
     def __init__(self, name, tyre=None, render_function=None):
         self.window = ac.newApp(name)
         self.tyre = tyre
-        ac.setSize(self.window, 100, 120)
+        ac.setIconPosition(self.window, 9999999, 99999999)  # hide the icon
+        ac.setSize(self.window, TyreWindow.width, TyreWindow.height)
         self.opt_label = ac.addLabel(self.window, "Opt:")
         ac.setPosition(self.opt_label, 5, 50)
         self.slip_label = ac.addLabel(self.window, "Slip:\nSkid:")
@@ -209,8 +212,8 @@ def init(telemetry):
         Tyre(telemetry),
     ]
     WINDOWS = [
-        TyreWindow("F_L", tyre=TYRES[0], render_function=render_tyres),
-        TyreWindow("F_R", tyre=TYRES[1], render_function=render_tyres),
-        TyreWindow("R_L", tyre=TYRES[2], render_function=render_tyres),
-        TyreWindow("R_R", tyre=TYRES[3], render_function=render_tyres),
+        TyreWindow("FL", tyre=TYRES[0], render_function=render_tyres),
+        TyreWindow("FR", tyre=TYRES[1], render_function=render_tyres),
+        TyreWindow("RL", tyre=TYRES[2], render_function=render_tyres),
+        TyreWindow("RR", tyre=TYRES[3], render_function=render_tyres),
     ]
