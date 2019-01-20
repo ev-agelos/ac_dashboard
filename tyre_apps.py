@@ -98,8 +98,8 @@ class Tyre:
         self._slip_ratio = 0
         self.slip_time = 0
         self.skid_time = 0
-        self.is_sliding = False
-        self.is_skidding = False
+        self.currently_slipping = False
+        self.currently_skidding = False
         self.start_sliding = None
         self.start_skidding = None
         self.low_opt = 0
@@ -130,24 +130,24 @@ class Tyre:
         self._slip_ratio = value
 
         if value > Tyre.slip_ratio_limit:
-            if self.is_sliding:
+            if self.currently_slipping:
                 now = time.time()
                 self.slip_time += now - self.start_sliding
                 self.start_sliding = now
             else:
-                self.is_sliding = True
+                self.currently_slipping = True
                 self.start_sliding = time.time()
         elif value < -Tyre.slip_ratio_limit:
-            if self.is_skidding:
+            if self.currently_skidding:
                 now = time.time()
                 self.skid_time += now - self.start_skidding
                 self.start_skidding = now
             else:
-                self.is_skidding = True
+                self.currently_skidding = True
                 self.start_skidding = time.time()
         else:  # tyre normal or on air
-            self.is_skidding = False
-            self.is_sliding = False
+            self.currently_skidding = False
+            self.currently_slipping = False
 
     @property
     def temp(self):
