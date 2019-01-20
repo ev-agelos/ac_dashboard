@@ -58,12 +58,12 @@ class TyreWindow:
         ac.setFontSize(self.starting_label_no, 25)
         ac.setPosition(self.starting_label_no, 35, 20)
 
-    def draw_tyre_slip_ratio(self, value):
-        if value > self.tyre.slip_ratio_limit:
+    def draw_tyre_slip(self, tyre):
+        if tyre.is_sliding:
             ac.setBackgroundColor(self.window, 1, 0, 0)
-        elif value < -self.tyre.slip_ratio_limit:
+        elif tyre.slip_ratio < -self.tyre.slip_ratio_limit:
             ac.setBackgroundColor(self.window, 0, 0, 1)
-        elif value == 0.0:  # tyre in the air
+        elif tyre.slip_ratio == 0.0:  # tyre in the air
             ac.setBackgroundColor(self.window, 1, 1, 1)
         else:
             ac.setBackgroundColor(self.window, 0, 0, 0)
@@ -91,11 +91,13 @@ def get_compound_temps(car_name, compound):
 class Tyre:
 
     slip_ratio_limit = 0.15
+    lateral_slip_limit = 1
 
     def __init__(self, dashboard):
         self._compound = None
         self._temp = 0
-        self._slip_ratio = 0
+        self.lateral_slip = 0
+        self.slip_ratio = 0
         self.slip_time = 0
         self.skid_time = 0
         self.currently_slipping = False
@@ -122,14 +124,19 @@ class Tyre:
                               optimum_temps=(self.low_opt, self.high_opt))
 
     @property
-    def slip_ratio(self):
-        return self._slip_ratio
+    def is_sliding(self):
+        return self.lateral_slip > Tyre.lateral_slip_limit or \
+            self.slip_ratio > Tyre.slip_ratio_limit
 
-    @slip_ratio.setter
-    def slip_ratio(self, value):
-        self._slip_ratio = value
+    @property
+    def is_blocked(self):
+        return self.slip_ratio < -Tyre.slip_ratio_limit
 
-        if value > Tyre.slip_ratio_limit:
+    def set_slip(self, slip_ratio, lateral_slip):
+        self.slip_ratio = slip_ratio
+        self.lateral_slip = lateral_slip
+
+        if self.is_sliding:
             if self.currently_slipping:
                 now = time.time()
                 self.slip_time += now - self.start_sliding
@@ -137,7 +144,7 @@ class Tyre:
             else:
                 self.currently_slipping = True
                 self.start_sliding = time.time()
-        elif value < -Tyre.slip_ratio_limit:
+        elif self.is_blocked:
             if self.currently_skidding:
                 now = time.time()
                 self.skid_time += now - self.start_skidding
@@ -145,7 +152,7 @@ class Tyre:
             else:
                 self.currently_skidding = True
                 self.start_skidding = time.time()
-        else:  # tyre normal or on air
+        else:
             self.currently_skidding = False
             self.currently_slipping = False
 
@@ -171,7 +178,7 @@ def render_tyres(deltaT):
     for tyre, window in zip(TYRES, WINDOWS):
         tyre.compound = info.graphics.tyreCompound
         window.draw_tyre_temp_colors(tyre.temp)
-        window.draw_tyre_slip_ratio(tyre.slip_ratio)
+        window.draw_tyre_slip(tyre)
         # opacity looses its value when window is clicked
         ac.setBackgroundOpacity(window.window, 1)
 
@@ -199,9 +206,9 @@ def set_tyre_temps(*temps):
         ac.setText(window.starting_label_no, "{}\u2103".format(round(tyre.temp)))
 
 
-def set_tyre_slip_ratios(*slip_ratios):
-    for tyre, slip_ratio in zip(TYRES, slip_ratios):
-        tyre.slip_ratio = slip_ratio
+def set_tyre_slips(slip_ratios, lateral_slips):
+    for tyre, ratio, lateral_slip in zip(TYRES, slip_ratios, lateral_slips):
+        tyre.set_slip(ratio, lateral_slip)
 
 
 def init(dashboard):
