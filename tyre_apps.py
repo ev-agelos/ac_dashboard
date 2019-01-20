@@ -90,7 +90,7 @@ def get_compound_temps(car_name, compound):
 
 class Tyre:
 
-    slip_ratio_limit = 0.1
+    slip_ratio_limit = 0.15
 
     def __init__(self, dashboard):
         self._compound = None
