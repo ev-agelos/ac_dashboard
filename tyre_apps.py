@@ -59,10 +59,10 @@ class TyreWindow:
         ac.setPosition(self.starting_label_no, 35, 20)
 
     def draw_tyre_slip(self, tyre):
-        if tyre.is_sliding:
-            ac.setBackgroundColor(self.window, 1, 0, 0)
-        elif tyre.slip_ratio < -self.tyre.slip_ratio_limit:
+        if tyre.slip_ratio < -self.tyre.slip_ratio_limit:
             ac.setBackgroundColor(self.window, 0, 0, 1)
+        elif tyre.is_sliding:
+            ac.setBackgroundColor(self.window, 1, 0, 0)
         elif tyre.slip_ratio == 0.0:  # tyre in the air
             ac.setBackgroundColor(self.window, 1, 1, 1)
         else:
