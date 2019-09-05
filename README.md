@@ -43,4 +43,4 @@ The app consists of 6 windows:
 
 ![alt text](https://github.com/ev-agelos/ac_dashboard/blob/master/Images/ingame_screenshot.jpg "Application inside the game")
 
-**Bonus**: *When entering pits, dashboard changes to "blinking" mode with the arrows(yellow leds) blinking too. Dashboard "locks" showing only the indication "IN PITS", position in the track and fuel information. Dashboard "unlocks" when exiting the pits.*
+*When entering pits dashboard information is hidden and the indication "IN PITS" starts blinking. Only position in the track and fuel information are being shown. Information gets revealed when exiting the pits.*
