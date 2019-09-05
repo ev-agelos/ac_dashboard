@@ -7,40 +7,40 @@ Download latest release, **rename** the folder to **ac_dashboard** and place it 
 
 >C:\Program Files (x86)\Steam\steamapps\common\assettocorsa\apps\python\ac_dashboard
 
-To enable/open the app, just click on the right side inside the game in the task bar where all apps exist.
+To enable the app, just click on the right side in the task bar (inside the game)  where all apps exist.
 
 ### Information
 The app consists of 6 windows:
-- main window with the dashboard
-- window showing car information
-- 4 windows showing information for each tyre
+- main dashboard
+- car information
+- information for all 4 tyres
 
 #### Dashboard window
 
-- Leds representing RPM's
-- Position / Laps (click to change)
+- Leds representing RPMs
+- Position / Laps (click to toggle)
 - Gear indication
-- Speed / Max Speed / Digital RPM's (click to change)
-- Fuel / Last lap fuel consumption / Laps left estimation depending on fuel consumption (click to change)
-- Best lap time / Theoretical best lap time (click to change)
-- Sector times / Performance meter (click to change)
+- Speed / Max Speed / Digital RPM's (click to toggle)
+- Fuel / Last lap fuel consumption / Laps left estimation depending on fuel consumption (click to toggle)
+- Best lap time / Theoretical best lap time (click to toggle)
+- Sector times / Performance meter (click to toggle)
 
 #### Car information window
 
 - Tyre compound currently loaded to the car
 - Optimum tyre temperatures for the loaded compound
 - ABS/Traction Control usage indication
-- G forces indication
+- G-force indication
 
 #### Tyre windows
 
 - Temperature of the tyre(core temperature)
-- Percentage indication of how much tyres were driven in their optimum temperature
+- Percentage indication of how long tyres were driven in their optimum temperature
 - Color feedback of tyre's temperature:
   - blue(below optimum tyre temperature)
   - green(optimum tyre temperature)
-  - red(over optimum tyre temperature)
+  - red(above optimum tyre temperature)
 
 ![alt text](https://github.com/ev-agelos/ac_dashboard/blob/master/Images/ingame_screenshot.jpg "Application inside the game")
 
-**Bonus**: *When entering pits, dashboard changes to "blinking" mode with the arrows(yellow leds) blinking too where information locks(except fuel indication) until you exit the pits, showing you in blinking mode "IN PITS", your position in the track and the fuel information.*
+**Bonus**: *When entering pits, dashboard changes to "blinking" mode with the arrows(yellow leds) blinking too. Dashboard "locks" showing only the indication "IN PITS", position in the track and fuel information. Dashboard "unlocks" when exiting the pits.*
